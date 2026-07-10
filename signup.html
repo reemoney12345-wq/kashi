@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0f0f0f">
+    <meta name="description" content="Create your Kashi account — Hustle made easy.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Kashi">
+    <link rel="manifest" href="/manifest.json">
+    <title>Sign Up — Kashi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-main: #0f0f0f; --bg-card: #1a1a1a; --border-visible: rgba(255,255,255,0.10);
+            --text-primary: #e8e8e8; --text-secondary: #a0a0a0; --text-tertiary: #6b6b6b;
+            --gold: #f0b93f; --gold-hover: #f6c968; --green: #2fa84f; --red: #e04a3a;
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 999px;
+            --font-display: 'Space Grotesk', sans-serif; --font-sans: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+            --touch-target: 48px;
+        }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { font-family: var(--font-sans); background: var(--bg-main); color: var(--text-primary); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; min-height: 100vh; min-height: 100dvh; }
+        svg { display: block; }
+        .icon { stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+        h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; }
+        .auth-card { width: 100%; max-width: 420px; background: var(--bg-card); border: 1px solid var(--border-visible); border-radius: var(--radius-lg); padding: 36px 28px 32px; box-shadow: 0 12px 40px rgba(0,0,0,0.3); animation: fadeInUp 0.5s ease forwards; }
+        @media (min-width: 769px) { .auth-card { padding: 44px 40px 40px; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .auth-back { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-tertiary); text-decoration: none; margin-bottom: 20px; transition: color 0.2s ease; }
+        .auth-back:hover { color: var(--gold); }
+        .auth-back .icon { width: 16px; height: 16px; }
+        .auth-header { text-align: center; margin-bottom: 32px; }
+        .auth-logo-icon { width: 28px; height: 28px; color: var(--gold); margin: 0 auto 12px; }
+        .auth-header h1 { margin-bottom: 6px; }
+        .auth-header p { color: var(--text-secondary); font-size: 0.875rem; }
+        .auth-tabs { display: flex; gap: 0; margin-bottom: 28px; background: rgba(255,255,255,0.04); border-radius: var(--radius-md); padding: 4px; }
+        .auth-tab { flex: 1; padding: 10px 16px; border: none; border-radius: var(--radius-sm); background: transparent; color: var(--text-tertiary); font-family: var(--font-sans); font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease; }
+        .auth-tab.active { background: var(--bg-main); color: var(--text-primary); }
+        .auth-tab:hover:not(.active) { color: var(--text-secondary); }
+        .auth-panel { display: none; }
+        .auth-panel.active { display: block; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px; }
+        .form-input { width: 100%; padding: 14px 16px; background: var(--bg-main); border: 1px solid var(--border-visible); border-radius: var(--radius-md); color: var(--text-primary); font-family: var(--font-sans); font-size: 1rem; transition: border-color 0.2s ease; min-height: var(--touch-target); }
+        .form-input::placeholder { color: var(--text-tertiary); opacity: 0.7; }
+        .form-input:focus { outline: none; border-color: var(--gold); }
+        .form-input.error { border-color: var(--red); }
+        .form-error { font-size: 0.78rem; color: var(--red); margin-top: 6px; display: none; }
+        .form-error.visible { display: block; }
+        .form-hint { font-size: 0.78rem; color: var(--text-tertiary); margin-top: 6px; }
+        .auth-password-wrap { position: relative; }
+        .auth-password-toggle { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-tertiary); cursor: pointer; padding: 4px; }
+        .auth-password-toggle:hover { color: var(--text-primary); }
+        .auth-password-toggle .icon { width: 18px; height: 18px; }
+        .auth-terms { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 24px; }
+        .auth-terms input[type="checkbox"] { margin-top: 3px; accent-color: var(--gold); width: 16px; height: 16px; }
+        .auth-terms label { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+        .auth-terms label a { color: var(--gold); text-decoration: underline; }
+        .auth-submit { width: 100%; padding: 16px 28px; background: var(--gold); color: #000; border: none; border-radius: var(--radius-xl); font-size: 1.02rem; font-weight: 600; font-family: var(--font-sans); cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(240,185,63,0.25); }
+        .auth-submit:hover { background: var(--gold-hover); }
+        .auth-submit:active { transform: scale(0.98); }
+        .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        .spinner { width: 20px; height: 20px; border: 2.5px solid rgba(0,0,0,0.25); border-top-color: #000; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .auth-submit.loading .auth-btn-text { display: none; }
+        .auth-submit.loading .spinner { display: block; }
+        .auth-divider { display: flex; align-items: center; gap: 12px; margin: 24px 0; color: var(--text-tertiary); }
+        .auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.06); }
+        .auth-divider span { font-size: 0.75rem; font-family: var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+        .auth-footer-link { text-align: center; margin-top: 8px; }
+        .auth-footer-link a { color: var(--gold); text-decoration: none; font-size: 0.85rem; font-weight: 500; }
+        .auth-forgot { text-align: right; margin-bottom: 24px; }
+        .auth-forgot a { font-size: 0.85rem; color: var(--text-tertiary); text-decoration: none; }
+        .auth-success { display: none; text-align: center; padding: 20px 0; }
+        .auth-success.visible { display: block; }
+        .auth-success-icon { width: 56px; height: 56px; background: rgba(47,168,79,0.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: var(--green); }
+        .auth-success-icon .icon { width: 28px; height: 28px; stroke-width: 2; }
+        .auth-success h2 { margin-bottom: 8px; }
+        .auth-success p { margin-bottom: 24px; color: var(--text-secondary); }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-sans); font-weight: 600; border: none; border-radius: var(--radius-xl); cursor: pointer; text-decoration: none; padding: 14px 28px; font-size: 1rem; min-height: var(--touch-target); background: var(--gold); color: #000; }
+    </style>
+</head>
+<body>
+    <div class="auth-card" id="authCard">
+        <a href="landing.html" class="auth-back">
+            <svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to home
+        </a>
+        <div class="auth-header">
+            <svg class="icon auth-logo-icon" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+            <h1>Join Kashi</h1>
+            <p>Start earning in under 60 seconds</p>
+        </div>
+        <div class="auth-tabs">
+            <button class="auth-tab active" data-tab="signup">Sign Up</button>
+            <button class="auth-tab" data-tab="signin">Sign In</button>
+        </div>
+
+        <form class="auth-panel active" id="signupForm" novalidate>
+            <div class="form-group">
+                <label class="form-label" for="signupName">Full Name</label>
+                <input type="text" id="signupName" class="form-input" placeholder="John Doe" autocomplete="name" required>
+                <span class="form-error" id="signupNameError">Please enter your full name</span>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="signupEmail">Email Address</label>
+                <input type="email" id="signupEmail" class="form-input" placeholder="you@email.com" autocomplete="email" required>
+                <span class="form-error" id="signupEmailError">Please enter a valid email</span>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="signupPhone">Phone Number</label>
+                <input type="tel" id="signupPhone" class="form-input" placeholder="08012345678" autocomplete="tel" required>
+                <span class="form-error" id="signupPhoneError">Please enter a valid Nigerian phone number</span>
+                <span class="form-hint">Used for payout verification</span>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="signupPassword">Password</label>
+                <div class="auth-password-wrap">
+                    <input type="password" id="signupPassword" class="form-input" placeholder="Min. 8 characters" autocomplete="new-password" required minlength="8">
+                    <button type="button" class="auth-password-toggle" data-target="signupPassword">
+                        <svg class="icon eye-open" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg class="icon eye-closed" viewBox="0 0 24 24" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="m14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    </button>
+                </div>
+                <span class="form-error" id="signupPasswordError">Password must be at least 8 characters</span>
+            </div>
+            <div class="auth-terms">
+                <input type="checkbox" id="signupTerms" required>
+                <label for="signupTerms">I am at least 16 years old and agree to Kashi's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+            </div>
+            <button type="submit" class="auth-submit" id="signupSubmit">
+                <span class="auth-btn-text">Create Account</span>
+                <span class="spinner"></span>
+            </button>
+            <div class="auth-divider"><span>or</span></div>
+            <p class="auth-footer-link">Already have an account? <a href="#" data-switch="signin">Sign in</a></p>
+        </form>
+
+        <form class="auth-panel" id="signinForm" novalidate>
+            <div class="form-group">
+                <label class="form-label" for="signinEmail">Email Address</label>
+                <input type="email" id="signinEmail" class="form-input" placeholder="you@email.com" autocomplete="email" required>
+                <span class="form-error" id="signinEmailError">Please enter a valid email</span>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="signinPassword">Password</label>
+                <div class="auth-password-wrap">
+                    <input type="password" id="signinPassword" class="form-input" placeholder="Your password" autocomplete="current-password" required>
+                    <button type="button" class="auth-password-toggle" data-target="signinPassword">
+                        <svg class="icon eye-open" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg class="icon eye-closed" viewBox="0 0 24 24" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="m14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    </button>
+                </div>
+                <span class="form-error" id="signinPasswordError">Password is required</span>
+            </div>
+            <div class="auth-forgot"><a href="#">Forgot password?</a></div>
+            <button type="submit" class="auth-submit" id="signinSubmit">
+                <span class="auth-btn-text">Sign In</span>
+                <span class="spinner"></span>
+            </button>
+            <div class="auth-divider"><span>or</span></div>
+            <p class="auth-footer-link">Don't have an account? <a href="#" data-switch="signup">Create one</a></p>
+        </form>
+
+        <div class="auth-success" id="successState">
+            <div class="auth-success-icon"><svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <h2>You're in!</h2>
+            <p>Your account has been created. Redirecting you to the app...</p>
+            <button class="btn" onclick="window.location.href='feed.html'">Go to Feed</button>
+        </div>
+    </div>
+
+    <script>
+        const $ = (sel) => document.querySelector(sel);
+        const API_BASE = '';
+
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
+                if (tab.dataset.tab === 'signup') $('#signupForm').classList.add('active');
+                else $('#signinForm').classList.add('active');
+                $('#successState').classList.remove('visible');
+                document.querySelector('.auth-tabs').style.display = '';
+                document.querySelector('.auth-header').style.display = '';
+                document.querySelector('.auth-back').style.display = '';
+            });
+        });
+
+        document.querySelectorAll('[data-switch]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelector(`.auth-tab[data-tab="${link.dataset.switch}"]`).click();
+            });
+        });
+
+        document.querySelectorAll('.auth-password-toggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const input = document.getElementById(btn.dataset.target);
+                const eyeOpen = btn.querySelector('.eye-open');
+                const eyeClosed = btn.querySelector('.eye-closed');
+                if (input.type === 'password') { input.type = 'text'; eyeOpen.style.display = 'none'; eyeClosed.style.display = 'block'; }
+                else { input.type = 'password'; eyeOpen.style.display = 'block'; eyeClosed.style.display = 'none'; }
+            });
+        });
+
+        function showError(inputId, errorId) { document.getElementById(inputId).classList.add('error'); document.getElementById(errorId).classList.add('visible'); }
+        function clearError(inputId, errorId) { document.getElementById(inputId).classList.remove('error'); document.getElementById(errorId).classList.remove('visible'); }
+        function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+        function isValidNigerianPhone(phone) { return /^(\+234|0)[7-9]\d{9}$/.test(phone.replace(/[\s\-\(\)]/g, '')); }
+
+        function saveUserData(data) {
+            const userData = {
+                id: data.user.id,
+                name: data.user.name,
+                email: data.user.email,
+                phone: data.user.phone,
+                balance: data.user.balance,
+                isPremium: data.user.isPremium,
+                referralCode: data.user.referralCode,
+                initials: data.user.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2),
+            };
+            localStorage.setItem('kashi_user', JSON.stringify(userData));
+            localStorage.setItem('kashi_token', data.accessToken);
+            localStorage.setItem('kashi_refresh', data.refreshToken);
+        }
+
+        $('#signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            ['signupName','signupEmail','signupPhone','signupPassword'].forEach(id => clearError(id, id+'Error'));
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const phone = document.getElementById('signupPhone').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const terms = document.getElementById('signupTerms').checked;
+            let hasError = false;
+            if (!name) { showError('signupName','signupNameError'); hasError = true; }
+            if (!email || !isValidEmail(email)) { showError('signupEmail','signupEmailError'); hasError = true; }
+            if (!phone || !isValidNigerianPhone(phone)) { showError('signupPhone','signupPhoneError'); hasError = true; }
+            if (!password || password.length < 8) { showError('signupPassword','signupPasswordError'); hasError = true; }
+            if (!terms) { alert('Please agree to the Terms of Service and confirm you are at least 16 years old.'); hasError = true; }
+            if (hasError) return;
+            const btn = $('#signupSubmit');
+            btn.classList.add('loading'); btn.disabled = true;
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/signup`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,email,phone,password}) });
+                if (!res.ok) throw new Error('Signup failed');
+                const data = await res.json();
+                saveUserData(data);
+                $('#successState').classList.add('visible');
+                document.querySelectorAll('.auth-panel').forEach(p => p.style.display = 'none');
+                document.querySelector('.auth-tabs').style.display = 'none';
+                setTimeout(() => { window.location.href = 'feed.html'; }, 1500);
+            } catch (err) { alert('Signup failed. Please try again.'); }
+            finally { btn.classList.remove('loading'); btn.disabled = false; }
+        });
+
+        $('#signinForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearError('signinEmail','signinEmailError'); clearError('signinPassword','signinPasswordError');
+            const email = document.getElementById('signinEmail').value.trim();
+            const password = document.getElementById('signinPassword').value;
+            let hasError = false;
+            if (!email || !isValidEmail(email)) { showError('signinEmail','signinEmailError'); hasError = true; }
+            if (!password) { showError('signinPassword','signinPasswordError'); hasError = true; }
+            if (hasError) return;
+            const btn = $('#signinSubmit');
+            btn.classList.add('loading'); btn.disabled = true;
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/signin`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email,password}) });
+                if (!res.ok) throw new Error('Signin failed');
+                const data = await res.json();
+                saveUserData(data);
+                window.location.href = 'feed.html';
+            } catch (err) { alert('Invalid email or password.'); }
+            finally { btn.classList.remove('loading'); btn.disabled = false; }
+        });
+
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('input', () => { const err = document.getElementById(input.id + 'Error'); if (err && err.classList.contains('visible')) clearError(input.id, input.id + 'Error'); });
+        });
+    </script>
+</body>
+</html>

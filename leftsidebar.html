@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>const API_BASE='https://kashi-atxm.onrender.com';</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation — Kashi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-card: #1a1a1a; --border-subtle: rgba(255,255,255,0.06);
+            --text-primary: #e8e8e8; --text-secondary: #a0a0a0; --text-tertiary: #6b6b6b;
+            --gold: #f0b93f; --gold-soft: rgba(240,185,63,0.12);
+            --font-display: 'Space Grotesk', sans-serif; --font-sans: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+        }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { font-family: var(--font-sans); background: var(--bg-card); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        svg { display: block; }
+        .icon { stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+        .sidebar-header { padding: 20px 20px 16px; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; }
+        .sidebar-logo { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; color: var(--text-primary); text-decoration: none; cursor: pointer; }
+        .sidebar-logo .icon { color: var(--gold); width: 20px; height: 20px; }
+        .sidebar-nav { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+        .sidebar-nav a { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.15s ease; }
+        .sidebar-nav a:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+        .sidebar-nav a.active { background: var(--gold-soft); color: var(--gold); }
+        .sidebar-nav a .icon { width: 20px; height: 20px; flex-shrink: 0; }
+        .sidebar-section-label { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); padding: 16px 14px 6px; pointer-events: none; user-select: none; }
+        .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border-subtle); flex-shrink: 0; }
+        .sidebar-user { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .sidebar-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--gold); color: #000; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; font-family: var(--font-display); flex-shrink: 0; }
+        .sidebar-user-info { min-width: 0; }
+        .sidebar-user-name { font-size: 0.85rem; font-weight: 500; }
+        .sidebar-user-balance { font-family: var(--font-mono); font-size: 0.75rem; color: var(--gold); }
+        .premium-badge { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.08em; background: var(--gold); color: #000; padding: 1px 6px; border-radius: 4px; font-weight: 700; display: none; }
+    </style>
+</head>
+<body>
+    <div class="sidebar-header">
+        <span class="sidebar-logo" data-page="feed">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+            Kashi
+        </span>
+    </div>
+    <nav class="sidebar-nav">
+        <a data-page="feed" class="active">
+            <svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Feed
+        </a>
+        <a data-page="earn">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+            Earn
+        </a>
+        <a data-page="history">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Watch History
+        </a>
+
+        <span class="sidebar-section-label">Earnings</span>
+
+        <a data-page="dashboard">
+            <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+            Dashboard
+        </a>
+        <a data-page="wallet">
+            <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            Wallet
+        </a>
+
+        <span class="sidebar-section-label">Account</span>
+
+        <a data-page="settings">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+            Settings
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-user" data-page="settings">
+            <div class="sidebar-avatar" id="userInitials">--</div>
+            <div class="sidebar-user-info">
+                <p class="sidebar-user-name" id="userName">Loading…</p>
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <p class="sidebar-user-balance" id="sidebarBalance">₦0.00</p>
+                    <span class="premium-badge" id="premiumBadge">PREMIUM</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const fmt = new Intl.NumberFormat('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        function nav(page) { window.parent.postMessage({ type: 'NAVIGATE', page }, '*'); setActive(page); }
+        function setActive(page) {
+            document.querySelectorAll('[data-page]').forEach(el => el.classList.remove('active'));
+            const a = document.querySelector(`[data-page="${page}"]`);
+            if (a) a.classList.add('active');
+        }
+        document.querySelectorAll('[data-page]').forEach(el => el.addEventListener('click', () => nav(el.dataset.page)));
+        window.addEventListener('message', (e) => { if (e.data?.type === 'ACTIVE_PAGE') setActive(e.data.page); });
+
+        function loadUserFromStorage() {
+            const stored = localStorage.getItem('kashi_user');
+            if (stored) {
+                const u = JSON.parse(stored);
+                document.getElementById('userName').textContent = u.name || 'User';
+                document.getElementById('userInitials').textContent = u.initials || '??';
+                document.getElementById('sidebarBalance').textContent = '₦' + fmt.format(u.balance || 0);
+                if (u.isPremium) document.getElementById('premiumBadge').style.display = 'inline-block';
+            }
+        }
+
+        async function loadUser() {
+            try {
+                const token = localStorage.getItem('kashi_token');
+                const res = await fetch(${API_BASE}/api/user', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) {
+                    const u = await res.json();
+                    document.getElementById('userName').textContent = u.name || 'User';
+                    document.getElementById('userInitials').textContent = u.name ? u.name.split(' ').map(p=>p.charAt(0)).join('').toUpperCase().slice(0,2) : '??';
+                    document.getElementById('sidebarBalance').textContent = '₦' + fmt.format(u.balance || 0);
+                    if (u.is_premium) document.getElementById('premiumBadge').style.display = 'inline-block';
+                    const stored = localStorage.getItem('kashi_user');
+                    if (stored) {
+                        const s = JSON.parse(stored);
+                        s.name = u.name; s.balance = u.balance; s.isPremium = u.is_premium;
+                        localStorage.setItem('kashi_user', JSON.stringify(s));
+                    }
+                }
+            } catch (_) { loadUserFromStorage(); }
+        }
+
+        loadUserFromStorage();
+        loadUser();
+    </script>
+</body>
+</html>

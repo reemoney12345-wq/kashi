@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>const API_BASE='https://kashi-atxm.onrender.com';</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0b1f14">
+    <title>Earn — Kashi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body class="page-body">
+    <div class="page-wrapper">
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card highlight">
+                <p class="stat-value" id="todayEarned">₦0.00</p>
+                <p class="stat-label">Today's Earnings</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-value" id="streakDays">0</p>
+                <p class="stat-label">Day Streak</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-value" id="totalEarned">₦0.00</p>
+                <p class="stat-label">Total Earned</p>
+            </div>
+        </div>
+
+        <!-- Streak tracker -->
+        <div class="card" id="streakCard">
+            <div class="card-header">
+                <span class="card-title">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" style="color:var(--gold);"><path d="M17.657 18.657A8 8 0 0 1 6.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0 1 20 13a7.975 7.975 0 0 1-2.343 5.657Z"/><path d="M9.879 16.121A3 3 0 1 0 12.015 11L11 14H9c0 .768.293 1.536.879 2.121Z"/></svg>
+                    Daily Streak
+                </span>
+                <span class="badge badge-gold" id="streakBadge">0 days</span>
+            </div>
+            <div class="streak-dots" id="streakDots"></div>
+            <p class="body-sm text-on-ink-tertiary mt-2" id="streakMessage"></p>
+        </div>
+
+        <!-- Quick Earn: ad views -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" style="color:var(--green);"><polygon points="13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+                    Quick Earn
+                </span>
+                <span class="badge badge-green">₦2–₦5 each</span>
+            </div>
+            <p class="body-sm text-on-ink-tertiary mb-4">Watch short sponsored videos. Low effort, steady earnings.</p>
+            <div class="earn-progress-row">
+                <div style="flex:1;">
+                    <div class="earn-progress-header">
+                        <span>Today's ad views</span>
+                        <span id="adViewCount" class="mono" style="font-size:0.78rem;color:var(--gold);">0 / 20</span>
+                    </div>
+                    <div class="earn-progress-bar">
+                        <div class="earn-progress-fill" id="adViewProgress" style="width:0%;"></div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-md mt-4" onclick="window.parent.postMessage({type:'NAVIGATE',page:'feed'},'*')">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Watch Ads Now
+            </button>
+        </div>
+
+        <!-- Pro Tasks (marketplace) -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" style="color:var(--gold);"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    Pro Tasks
+                </span>
+                <span class="badge badge-gold">₦50–₦150 each</span>
+            </div>
+            <p class="body-sm text-on-ink-tertiary mb-4">Higher-paying tasks from partner brands. Requires verified account.</p>
+            <div class="task-list" id="taskList"></div>
+            <div class="empty-state" id="tasksEmpty">
+                <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                <h3>No tasks available</h3>
+                <p>Check back soon for new opportunities</p>
+            </div>
+        </div>
+
+        <!-- Referral -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" style="color:var(--gold);"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                    Refer & Earn
+                </span>
+                <span class="badge badge-gold">₦200 per signup</span>
+            </div>
+            <p class="body-sm text-on-ink-tertiary mb-4">Invite friends who verify their account and watch their first ad. You both earn.</p>
+            <button class="btn btn-secondary btn-md" onclick="window.parent.postMessage({type:'NAVIGATE',page:'dashboard'},'*')">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Get Referral Code
+            </button>
+        </div>
+
+        <!-- Content Creator -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" style="color:var(--on-ink-secondary);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Create & Earn
+                </span>
+                <span class="badge badge-green">Ongoing</span>
+            </div>
+            <p class="body-sm text-on-ink-tertiary mb-4">Upload sponsored content and earn from every completed view by other users.</p>
+            <button class="btn btn-secondary btn-md" onclick="window.parent.postMessage({type:'NAVIGATE',page:'upload'},'*')">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload Content
+            </button>
+        </div>
+
+        <!-- Recent earnings -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" style="color:var(--green);"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    Recent Earnings
+                </span>
+            </div>
+            <div class="txn-list" id="recentEarnings"></div>
+            <div class="empty-state" id="earningsEmpty">
+                <svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+                <h3>No earnings yet</h3>
+                <p>Complete tasks to see your earnings here</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const $ = (sel) => document.querySelector(sel);
+        const fmt = new Intl.NumberFormat('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        const state = {
+            todayEarned: 0,
+            totalEarned: 0,
+            streakDays: 0,
+            adViewsToday: 0,
+            adViewCap: 20,
+            tasks: [],
+            recentEarnings: [],
+        };
+
+        function esc(s) {
+            const d = document.createElement('div');
+            d.textContent = s == null ? '' : String(s);
+            return d.innerHTML;
+        }
+
+        async function load() {
+            try {
+                const res = await fetch(${API_BASE}/api/earn');
+                if (res.ok) Object.assign(state, await res.json());
+            } catch (_) {}
+            render();
+        }
+
+        function render() {
+            $('#todayEarned').textContent = '₦' + fmt.format(state.todayEarned);
+            $('#totalEarned').textContent = '₦' + fmt.format(state.totalEarned);
+            $('#streakDays').textContent = state.streakDays;
+            $('#streakBadge').textContent = state.streakDays + ' day' + (state.streakDays !== 1 ? 's' : '');
+
+            const dots = $('#streakDots');
+            let dotsHtml = '';
+            for (let i = 0; i < 7; i++) {
+                const filled = i < (state.streakDays % 7);
+                dotsHtml += `
+                    <div class="streak-dot ${filled ? 'filled' : ''}">
+                        ${filled
+                            ? '<svg class="icon" viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M17.657 18.657A8 8 0 0 1 6.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0 1 20 13a7.975 7.975 0 0 1-2.343 5.657Z"/><path d="M9.879 16.121A3 3 0 1 0 12.015 11L11 14H9c0 .768.293 1.536.879 2.121Z"/></svg>'
+                            : ''}
+                    </div>`;
+            }
+            dots.innerHTML = dotsHtml;
+
+            const daysToBonus = 7 - (state.streakDays % 7);
+            if (state.streakDays > 0 && daysToBonus > 0 && daysToBonus < 7) {
+                $('#streakMessage').textContent = `Keep going! ${daysToBonus} more day${daysToBonus > 1 ? 's' : ''} to unlock a ₦500 streak bonus.`;
+            } else if (daysToBonus === 0 || state.streakDays % 7 === 0) {
+                $('#streakMessage').textContent = '🎉 Streak bonus unlocked! ₦500 has been added to your balance.';
+            } else {
+                $('#streakMessage').textContent = 'Complete a task daily to build your streak. 7-day streaks unlock a ₦500 bonus.';
+            }
+
+            $('#adViewCount').textContent = `${state.adViewsToday} / ${state.adViewCap}`;
+            $('#adViewProgress').style.width = Math.min((state.adViewsToday / state.adViewCap) * 100, 100) + '%';
+
+            if (state.tasks.length === 0) {
+                $('#tasksEmpty').style.display = 'block';
+                $('#taskList').innerHTML = '';
+            } else {
+                $('#tasksEmpty').style.display = 'none';
+                $('#taskList').innerHTML = state.tasks.map(task => `
+                    <div class="task-card">
+                        <div class="task-icon-wrap" style="background:${esc(task.brandColor || 'var(--gold-soft)')};color:${task.brandColor ? '#fff' : 'var(--gold)'};">
+                            <span class="task-brand-initial">${esc(task.brandInitial || task.brand?.[0] || '?')}</span>
+                        </div>
+                        <div class="task-info">
+                            <p class="task-title">${esc(task.title)}</p>
+                            <p class="task-meta">${esc(task.brand)} · ${esc(task.type || 'Complete action')}</p>
+                        </div>
+                        <div style="text-align:right;flex-shrink:0;">
+                            <p class="task-reward">₦${task.reward}</p>
+                            <button class="btn btn-primary btn-sm task-do-btn" data-id="${task.id}">Do Task</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll('.task-do-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        const id = btn.dataset.id;
+                        btn.disabled = true;
+                        btn.innerHTML = 'Opening...';
+                        try {
+                            const res = await fetch(`/api/tasks/${id}/start`, { method: 'POST' });
+                            if (res.ok) {
+                                const data = await res.json();
+                                if (data.redirectUrl) window.open(data.redirectUrl, '_blank');
+                                btn.innerHTML = 'Done ✓';
+                                btn.classList.remove('btn-primary');
+                                btn.classList.add('btn-secondary');
+                            }
+                        } catch (_) {
+                            btn.disabled = false;
+                            btn.innerHTML = 'Do Task';
+                        }
+                    });
+                });
+            }
+
+            if (state.recentEarnings.length === 0) {
+                $('#earningsEmpty').style.display = 'block';
+                $('#recentEarnings').innerHTML = '';
+            } else {
+                $('#earningsEmpty').style.display = 'none';
+                $('#recentEarnings').innerHTML = state.recentEarnings.map(e => {
+                    let icon = '';
+                    switch (e.type) {
+                        case 'ad_view':
+                            icon = '<svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+                            break;
+                        case 'pro_task':
+                            icon = '<svg class="icon" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>';
+                            break;
+                        case 'referral':
+                            icon = '<svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>';
+                            break;
+                        case 'streak_bonus':
+                            icon = '<svg class="icon" viewBox="0 0 24 24"><path d="M17.657 18.657A8 8 0 0 1 6.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0 1 20 13a7.975 7.975 0 0 1-2.343 5.657Z"/><path d="M9.879 16.121A3 3 0 1 0 12.015 11L11 14H9c0 .768.293 1.536.879 2.121Z"/></svg>';
+                            break;
+                        default:
+                            icon = '<svg class="icon" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>';
+                    }
+                    return `
+                        <div class="txn-row">
+                            <div class="txn-icon credit">${icon}</div>
+                            <div class="txn-info">
+                                <p class="txn-title">${esc(e.source)}</p>
+                                <p class="txn-meta">${esc(e.date)} · ${esc(e.typeLabel || e.type)}</p>
+                            </div>
+                            <p class="txn-amount credit">+₦${fmt.format(e.amount)}</p>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        load();
+    </script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>const API_BASE='https://kashi-atxm.onrender.com';</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Feed — Kashi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-main: #0f0f0f; --bg-card: #1a1a1a; --border-subtle: rgba(255,255,255,0.06); --border-visible: rgba(255,255,255,0.10);
+            --text-primary: #e8e8e8; --text-secondary: #a0a0a0; --text-tertiary: #6b6b6b;
+            --gold: #f0b93f; --gold-hover: #f6c968; --gold-soft: rgba(240,185,63,0.12); --green: #2fa84f; --red: #e04a3a; --blue: #4a90d9;
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 999px;
+            --font-display: 'Space Grotesk', sans-serif; --font-sans: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+            --touch-target: 48px;
+        }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { font-family: var(--font-sans); background: var(--bg-main); color: var(--text-primary); height: 100%; overflow-y: auto; padding: 0 24px 24px; display: flex; flex-direction: column; }
+        body::-webkit-scrollbar { width: 4px; }
+        body::-webkit-scrollbar-track { background: transparent; }
+        body::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 4px; }
+        svg { display: block; }
+        .icon { stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+        h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; color: var(--text-primary); }
+
+        .earn-progress-sticky { position: sticky; top: 0; z-index: 10; background: var(--bg-main); padding: 12px 0 8px; border-bottom: 1px solid var(--border-subtle); margin: 0 -24px; padding-left: 24px; padding-right: 24px; }
+        .earn-progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .earn-progress-label { font-size: 0.75rem; color: var(--text-secondary); }
+        .earn-progress-count { font-family: var(--font-mono); font-size: 0.75rem; color: var(--gold); }
+        .earn-progress-track { width: 100%; height: 4px; background: var(--border-subtle); border-radius: 2px; overflow: hidden; }
+        .earn-progress-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.5s ease; }
+
+        .onboarding-banner { display: none; background: var(--gold-soft); border: 1px solid rgba(240,185,63,0.2); border-radius: var(--radius-md); padding: 16px 20px; text-align: center; margin-bottom: 16px; }
+
+        .feed-post-bar { display: flex; align-items: center; gap: 10px; padding: 12px 0 4px; }
+        .feed-post-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--gold); color: #000; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; font-family: var(--font-display); flex-shrink: 0; }
+        .feed-post-prompt { flex: 1; padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); color: var(--text-tertiary); font-family: var(--font-sans); font-size: 0.88rem; cursor: pointer; text-align: left; transition: border-color 0.15s ease; }
+        .feed-post-prompt:hover { border-color: var(--border-visible); }
+        .feed-post-action { width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; flex-shrink: 0; }
+        .feed-post-action:hover { background: var(--gold-soft); color: var(--gold); border-color: rgba(240,185,63,0.3); }
+        .feed-post-action .icon { width: 18px; height: 18px; }
+
+        .feed-filters { display: flex; gap: 6px; overflow-x: auto; padding: 12px 0 4px; }
+        .feed-filters::-webkit-scrollbar { display: none; }
+        .feed-filter { padding: 7px 16px; border-radius: var(--radius-xl); background: transparent; border: 1px solid var(--border-visible); color: var(--text-secondary); font-family: var(--font-sans); font-size: 0.8rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.15s ease; }
+        .feed-filter.active { background: var(--bg-card); color: var(--text-primary); border-color: var(--text-tertiary); }
+        .feed-filter:hover:not(.active) { color: var(--text-primary); }
+        .feed-filter[data-filter="ad"] { color: var(--gold); }
+        .feed-filter[data-filter="anime"] { color: var(--blue); }
+
+        .feed-posts { display: flex; flex-direction: column; gap: 16px; padding-bottom: 8px; }
+        .feed-post-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; transition: border-color 0.15s ease; }
+        .feed-post-card:hover { border-color: var(--border-visible); }
+        .feed-card-thumb { position: relative; aspect-ratio: 16/9; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .feed-card-thumb img, .feed-card-thumb video { width: 100%; height: 100%; object-fit: cover; }
+        .feed-card-thumb-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); background: linear-gradient(160deg, var(--bg-card) 0%, var(--bg-main) 100%); }
+        .feed-card-thumb-placeholder .icon { width: 32px; height: 32px; opacity: 0.4; }
+        .feed-card-duration { position: absolute; bottom: 6px; right: 6px; background: rgba(15,15,15,0.85); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-primary); }
+        .feed-card-play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 44px; height: 44px; border-radius: 50%; background: rgba(15,15,15,0.7); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s ease; }
+        .feed-post-card:hover .feed-card-play-icon { opacity: 1; }
+        .feed-card-play-icon .icon { width: 20px; height: 20px; color: var(--text-primary); }
+        .feed-card-ad-label { position: absolute; top: 8px; left: 8px; background: var(--gold); color: #000; font-family: var(--font-mono); font-size: 0.6rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; z-index: 2; }
+        .feed-card-anime-label { position: absolute; top: 8px; left: 8px; background: var(--blue); color: #fff; font-family: var(--font-mono); font-size: 0.6rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; z-index: 2; }
+        .feed-card-context { position: absolute; top: 8px; right: 8px; background: rgba(15,15,15,0.75); color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.6rem; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.04em; }
+
+        .feed-card-info { padding: 12px 14px; }
+        .feed-card-creator { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .feed-card-avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--gold); background-size: cover; background-position: center; flex-shrink: 0; }
+        .feed-card-creator span { font-size: 0.8rem; font-weight: 500; color: var(--text-primary); }
+        .feed-card-brand { font-size: 0.85rem; font-weight: 600; color: var(--gold); margin-bottom: 4px; }
+        .feed-card-caption { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; overflow: hidden; }
+        .feed-card-caption.clamped { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .feed-read-more { background: none; border: none; color: var(--gold); cursor: pointer; font-family: var(--font-sans); font-size: 0.8rem; padding: 4px 0; margin-top: 4px; display: inline-block; }
+        .feed-read-more:hover { color: var(--gold-hover); }
+        .feed-card-meta { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.7rem; color: var(--text-tertiary); font-family: var(--font-mono); flex-wrap: wrap; }
+        .feed-card-actions { display: flex; gap: 12px; padding: 8px 14px 12px; border-top: 1px solid var(--border-subtle); flex-wrap: wrap; }
+        .feed-card-action { display: flex; align-items: center; gap: 5px; background: none; border: none; color: var(--text-tertiary); font-family: var(--font-sans); font-size: 0.78rem; cursor: pointer; padding: 4px 0; transition: color 0.15s ease; }
+        .feed-card-action:hover { color: var(--text-primary); }
+        .feed-card-action.liked { color: var(--red); }
+        .feed-card-action.saved { color: var(--gold); }
+        .feed-card-action.reposted { color: var(--green); }
+        .feed-card-action .icon { width: 17px; height: 17px; }
+
+        .feed-news-card { cursor: pointer; }
+        .feed-news-image { width: 100%; aspect-ratio: 16/9; overflow: hidden; }
+        .feed-news-image img { width: 100%; height: 100%; object-fit: cover; }
+        .feed-news-tag { display: inline-block; font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--green); background: rgba(47,168,79,0.14); padding: 2px 8px; border-radius: 4px; margin-bottom: 6px; }
+        .feed-news-title { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; line-height: 1.3; }
+
+        .feed-social-card { cursor: default; }
+        .feed-social-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
+        .feed-social-user { font-size: 0.85rem; font-weight: 500; color: var(--text-primary); }
+        .feed-social-body { font-size: 0.88rem; color: var(--text-secondary); padding: 0 14px 12px; line-height: 1.5; }
+        .feed-social-image { width: 100%; }
+        .feed-social-image img { width: 100%; max-height: 320px; object-fit: cover; }
+
+        .feed-anime-card { border-left: 3px solid var(--blue); }
+        .feed-anime-episode { display: inline-block; font-family: var(--font-mono); font-size: 0.6rem; background: rgba(74,144,217,0.15); color: var(--blue); padding: 2px 8px; border-radius: 4px; margin-bottom: 4px; }
+
+        .comments-inline { display: none; border-top: 1px solid var(--border-subtle); padding: 12px 14px; }
+        .comments-inline.visible { display: block; }
+        .comment-item { display: flex; gap: 8px; padding: 6px 0; font-size: 0.8rem; }
+        .comment-avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--gold); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 600; color: #000; }
+        .comment-body { flex: 1; }
+        .comment-user { font-weight: 500; color: var(--text-primary); font-size: 0.75rem; }
+        .comment-text { color: var(--text-secondary); font-size: 0.78rem; }
+        .comment-time { font-size: 0.65rem; color: var(--text-tertiary); font-family: var(--font-mono); }
+        .comment-input-row { display: flex; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-subtle); }
+        .comment-input { flex: 1; padding: 8px 12px; background: var(--bg-main); border: 1px solid var(--border-visible); border-radius: var(--radius-xl); color: var(--text-primary); font-family: var(--font-sans); font-size: 0.78rem; }
+        .comment-input::placeholder { color: var(--text-tertiary); }
+
+        .empty-state { display: none; text-align: center; padding: 60px 20px; color: var(--text-tertiary); }
+        .empty-state .icon { width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.3; }
+        .empty-state h3 { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 6px; }
+        .empty-state p { font-size: 0.85rem; font-family: var(--font-mono); }
+        .feed-sentinel { height: 1px; }
+
+        .feed-skeleton { display: flex; flex-direction: column; gap: 12px; padding: 8px 0; }
+        .feed-skeleton-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .feed-skeleton-line { height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--bg-card) 25%, var(--border-visible) 50%, var(--bg-card) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+        .feed-skeleton-line.short { width: 60%; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        .feed-toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-10px); background: var(--bg-card); border: 1px solid var(--gold); color: var(--text-primary); font-size: 0.85rem; font-weight: 500; padding: 10px 18px; border-radius: var(--radius-xl); display: flex; align-items: center; gap: 8px; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; z-index: 600; box-shadow: 0 4px 16px rgba(240,185,63,0.2); }
+        .feed-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-sans); font-weight: 600; border: none; border-radius: var(--radius-xl); cursor: pointer; text-decoration: none; transition: all 0.2s ease; white-space: nowrap; min-height: var(--touch-target); }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: var(--gold); color: #000; padding: 12px 22px; font-size: 0.92rem; box-shadow: 0 4px 16px rgba(240,185,63,0.25); }
+        .btn-primary:hover { background: var(--gold-hover); }
+        .btn-secondary { background: transparent; color: var(--text-primary); border: 1px solid var(--border-visible); padding: 9px 18px; font-size: 0.85rem; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.05); }
+        .btn-sm { padding: 6px 12px; font-size: 0.72rem; min-height: 30px; }
+        .btn .icon { width: 16px; height: 16px; }
+        .spinner { width: 15px; height: 15px; border: 2px solid rgba(0,0,0,0.25); border-top-color: #000; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+        .btn.loading .spinner { display: block; }
+        .btn.loading .btn-label { display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; align-items: flex-end; justify-content: center; z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+        .modal-backdrop.visible { opacity: 1; pointer-events: auto; }
+        .modal-card { width: 100%; max-width: 440px; background: var(--bg-card); border: 1px solid var(--border-visible); border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 24px 22px 28px; transform: translateY(24px); transition: transform 0.25s ease; }
+        .modal-backdrop.visible .modal-card { transform: translateY(0); }
+        @media (min-width: 560px) { .modal-backdrop { align-items: center; } .modal-card { border-radius: var(--radius-lg); } }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .modal-title { font-size: 1.1rem; color: var(--text-primary); }
+        .modal-close { background: none; border: none; color: var(--text-tertiary); cursor: pointer; padding: 6px; border-radius: 6px; }
+        .modal-close:hover { color: var(--text-primary); }
+        .modal-close .icon { width: 18px; height: 18px; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
+        .modal-actions .btn { flex: 1; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px; }
+        .form-input, .form-textarea, .form-select { width: 100%; padding: 13px 14px; background: var(--bg-main); border: 1px solid var(--border-visible); border-radius: var(--radius-md); color: var(--text-primary); font-family: var(--font-sans); font-size: 0.95rem; }
+        .form-textarea { resize: none; min-height: 84px; }
+        .form-input::placeholder, .form-textarea::placeholder { color: var(--text-tertiary); opacity: 0.7; }
+        .form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; border-color: var(--gold); }
+        .form-select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 44px; cursor: pointer; }
+        .form-select option { background: var(--bg-main); color: var(--text-primary); }
+        .char-count { text-align: right; font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-tertiary); margin-top: 6px; }
+        .char-count.limit { color: var(--red); }
+
+        .video-fullscreen { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
+        .video-fullscreen video { width: 100%; max-width: 500px; max-height: 80vh; object-fit: contain; border-radius: 8px; }
+        .video-fs-progress-wrap { width: 100%; max-width: 500px; margin-top: 12px; padding: 0 20px; }
+        .video-fs-progress-track { width: 100%; height: 3px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden; }
+        .video-fs-progress-fill { height: 100%; background: var(--gold); width: 0%; transition: width 0.1s linear; }
+        .video-fs-info { width: 100%; max-width: 500px; padding: 12px 20px; }
+        .video-fs-title { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: #fff; }
+        .video-fs-brand { font-size: 0.85rem; color: var(--gold); margin-top: 2px; }
+        .video-fs-ad-label { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 4px 14px; border-radius: 999px; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; z-index: 10; display: none; }
+        .video-fs-close { position: absolute; top: 16px; right: 16px; z-index: 10; background: rgba(255,255,255,0.15); border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; }
+        .video-earn-toast { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: var(--bg-card); border: 2px solid var(--gold); padding: 20px 28px; border-radius: var(--radius-lg); text-align: center; z-index: 20; }
+
+        @media (max-width: 640px) { body { padding: 0 12px 12px; } .earn-progress-sticky { margin: 0 -12px; padding-left: 12px; padding-right: 12px; } }
+    </style>
+</head>
+<body>
+    <div class="earn-progress-sticky" id="earnProgressSticky">
+        <div class="earn-progress-header"><span class="earn-progress-label">Today's ad quota</span><span class="earn-progress-count" id="earnQuotaCount">0 / 20</span></div>
+        <div class="earn-progress-track"><div class="earn-progress-fill" id="earnQuotaFill" style="width:0%;"></div></div>
+    </div>
+
+    <div class="onboarding-banner" id="onboardingBanner">
+        <p style="font-size:1rem;font-weight:600;color:var(--gold);margin-bottom:4px;">👋 Welcome to Kashi!</p>
+        <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:12px;">Here is how to start earning:</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+            <span style="background:var(--bg-card);padding:8px 14px;border-radius:var(--radius-xl);font-size:0.75rem;">1. Watch ads → earn ₦5-₦15</span>
+            <span style="background:var(--bg-card);padding:8px 14px;border-radius:var(--radius-xl);font-size:0.75rem;">2. Complete jobs → earn ₦50-₦150</span>
+            <span style="background:var(--bg-card);padding:8px 14px;border-radius:var(--radius-xl);font-size:0.75rem;">3. Refer friends → earn ₦200</span>
+        </div>
+        <button onclick="document.getElementById('onboardingBanner').style.display='none'" style="margin-top:10px;background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:0.7rem;">Dismiss</button>
+    </div>
+
+    <div class="feed-post-bar">
+        <div class="feed-post-avatar" id="feedUserAvatar">--</div>
+        <button class="feed-post-prompt" id="openCreatePost">What's on your mind? Create a post...</button>
+        <button class="feed-post-action" id="openUpload" title="Upload video"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
+    </div>
+
+    <div class="feed-filters" id="feedFilters">
+        <button class="feed-filter active" data-filter="all">All</button>
+        <button class="feed-filter" data-filter="video">Videos</button>
+        <button class="feed-filter" data-filter="news">News</button>
+        <button class="feed-filter" data-filter="social">Social</button>
+        <button class="feed-filter" data-filter="ad">Ads</button>
+        <button class="feed-filter" data-filter="anime">Anime</button>
+    </div>
+
+    <div class="feed-posts" id="feedPosts"></div>
+    <div class="feed-skeleton" id="feedSkeleton">
+        <div class="feed-skeleton-card"><div class="feed-skeleton-line" style="width:40%;"></div><div class="feed-skeleton-line"></div><div class="feed-skeleton-line short"></div></div>
+        <div class="feed-skeleton-card"><div class="feed-skeleton-line" style="width:30%;"></div><div class="feed-skeleton-line"></div><div class="feed-skeleton-line short"></div></div>
+        <div class="feed-skeleton-card"><div class="feed-skeleton-line" style="width:50%;"></div><div class="feed-skeleton-line"></div><div class="feed-skeleton-line short"></div></div>
+    </div>
+    <div class="feed-sentinel" id="feedSentinel"></div>
+    <div class="empty-state" id="feedEmpty" style="display:none;"><svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg><h3>No posts yet</h3><p>Be the first to create a post!</p></div>
+
+    <div class="feed-toast" id="feedToast"><svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px;color:var(--gold);"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg><span id="feedToastText"></span></div>
+
+    <div class="modal-backdrop" id="createPostModal">
+        <div class="modal-card">
+            <div class="modal-header"><h3 class="modal-title">Create Post</h3><button type="button" class="modal-close" id="closeCreatePost"><svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            <form id="createPostForm">
+                <div class="form-group"><label class="form-label" for="postType">Post Type</label><select class="form-select" id="postType" required><option value="social">Social Post</option><option value="news">News / Article</option><option value="anime">Anime / Manga</option></select></div>
+                <div class="form-group"><label class="form-label" for="postTitle">Title</label><input type="text" class="form-input" id="postTitle" maxlength="100" placeholder="Give your post a title" required></div>
+                <div class="form-group"><label class="form-label" for="postBody">What do you want to share?</label><textarea class="form-textarea" id="postBody" maxlength="2000" placeholder="Write your post..." required></textarea><p class="char-count" id="postCharCount">0 / 2000</p></div>
+                <div class="form-group" id="postLinkGroup" style="display:none;"><label class="form-label" for="postLink">Link (optional)</label><input type="url" class="form-input" id="postLink" placeholder="https://..."></div>
+                <div class="form-group" id="postEpisodeGroup" style="display:none;"><label class="form-label" for="postEpisode">Episode Number</label><input type="text" class="form-input" id="postEpisode" placeholder="e.g. Episode 12"></div>
+                <div class="modal-actions"><button type="button" class="btn btn-secondary" id="cancelCreatePost">Cancel</button><button type="submit" class="btn btn-primary"><span class="btn-label">Post</span><span class="spinner"></span></button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="video-fullscreen" id="videoFullscreen">
+        <button class="video-fs-close" id="closeVideoFs">✕</button>
+        <div class="video-fs-ad-label" id="videoAdLabel">⏱ Ad playing — keep watching to earn</div>
+        <video id="videoFsEl" playsinline controlsList="nodownload"></video>
+        <div class="video-fs-progress-wrap"><div class="video-fs-progress-track"><div class="video-fs-progress-fill" id="videoFsProgress"></div></div></div>
+        <div class="video-fs-info"><p class="video-fs-title" id="videoFsTitle"></p><p class="video-fs-brand" id="videoFsBrand"></p></div>
+        <div class="video-earn-toast" id="videoEarnToast"><p style="font-size:1.5rem;color:var(--gold);font-weight:700;">+₦<span id="earnAmount">0</span></p><p style="font-size:0.85rem;color:var(--text-secondary);">Earned!</p></div>
+    </div>
+
+    <script>
+        const $ = sel => document.querySelector(sel);
+        const fmt = new Intl.NumberFormat('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        let feed = [], currentFilter = 'all', page = 1, isLoading = false, hasMore = true, currentUserId = null;
+        function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+        function fmtCount(n) { if (n >= 1000000) return (n/1000000).toFixed(1)+'M'; if (n >= 1000) return (n/1000).toFixed(1)+'k'; return n.toString(); }
+        function getToken() { return localStorage.getItem('kashi_token'); }
+        function loadCurrentUser() { const s = localStorage.getItem('kashi_user'); if (s) try { currentUserId = JSON.parse(s).id; } catch (_) {} }
+
+        async function loadEarnProgress() {
+            try { const t = getToken(); const r = await fetch(${API_BASE}/api/earn', { headers: t ? { 'Authorization': `Bearer ${t}` } : {} }); if (r.ok) { const d = await r.json(); $('#earnQuotaCount').textContent = `${d.adViewsToday||0} / ${d.adViewCap||20}`; $('#earnQuotaFill').style.width = Math.min(((d.adViewsToday||0)/(d.adViewCap||20))*100,100)+'%'; } } catch (_) {}
+        }
+
+        async function loadFeed(filter = 'all', append = false) {
+            if (isLoading) return; isLoading = true; currentFilter = filter;
+            if (!append) { page = 1; feed = []; hasMore = true; }
+            try {
+                const url = `/api/feed?type=${filter==='all'?'':filter}&page=${page}&limit=10`;
+                const t = getToken(); const r = await fetch(url, { headers: t ? { 'Authorization': `Bearer ${t}` } : {} });
+                const data = r.ok ? await r.json() : null;
+                const posts = data?.posts || data || [];
+                if (Array.isArray(posts) && posts.length > 0) { if (append) feed = [...feed, ...posts]; else feed = posts; hasMore = data?.hasMore ?? posts.length >= 10; page++; } else { hasMore = false; }
+            } catch (_) { hasMore = false; }
+            $('#feedSkeleton').style.display = 'none';
+            renderFeed(); isLoading = false;
+        }
+
+        function renderFeed() {
+            const c = $('#feedPosts'), e = $('#feedEmpty');
+            if (!Array.isArray(feed) || feed.length === 0) { e.style.display = 'block'; c.innerHTML = ''; return; }
+            e.style.display = 'none';
+            c.innerHTML = feed.map(p => { const ctx = p.context||''; const own = currentUserId && p.creatorId === currentUserId;
+                switch(p.type){case'video':return renderVideoCard(p,ctx,own);case'ad':return renderAdCard(p,ctx,own);case'news':return renderNewsCard(p,ctx,own);case'social':return renderSocialCard(p,ctx,own);case'anime':return renderAnimeCard(p,ctx,own);default:return'';} }).join('');
+            bindCardEvents();
+        }
+
+        function bindCardEvents() {
+            document.querySelectorAll('.feed-post-card[data-type="video"], .feed-post-card[data-type="ad"], .feed-post-card[data-type="anime"]').forEach(card => {
+                card.addEventListener('click', (e) => { if (e.target.closest('.feed-card-action')||e.target.closest('.feed-read-more')||e.target.closest('.comment-input-row')) return;
+                    openVideoPlayer({id:card.dataset.id,caption:card.querySelector('.feed-card-caption')?.textContent||'',brand:card.querySelector('.feed-card-brand')?.textContent||'',creatorName:card.querySelector('.feed-card-creator span')?.textContent||'',type:card.dataset.type,isSponsored:card.dataset.type==='ad',url:card.dataset.url||''}); });
+            });
+            document.querySelectorAll('.feed-post-card[data-type="news"]').forEach(card => {
+                card.addEventListener('click', (e) => { if (e.target.closest('.feed-card-action')||e.target.closest('.feed-read-more')||e.target.closest('.comment-input-row')) return; if (card.dataset.link) window.open(card.dataset.link,'_blank'); });
+            });
+            document.querySelectorAll('.feed-card-action-like').forEach(b => b.addEventListener('click', async(e)=>{e.stopPropagation();await toggleLike(b);}));
+            document.querySelectorAll('.feed-card-action-save').forEach(b => b.addEventListener('click', async(e)=>{e.stopPropagation();await toggleSave(b);}));
+            document.querySelectorAll('.feed-card-action-share').forEach(b => b.addEventListener('click', (e)=>{e.stopPropagation();sharePost(b.dataset.id,b.dataset.title);}));
+            document.querySelectorAll('.feed-card-action-delete').forEach(b => b.addEventListener('click', async(e)=>{e.stopPropagation();await deletePost(b);}));
+            document.querySelectorAll('.feed-card-action-repost').forEach(b => b.addEventListener('click', async(e)=>{e.stopPropagation();await repostPost(b);}));
+            document.querySelectorAll('.feed-card-action-comment').forEach(b => b.addEventListener('click', (e)=>{e.stopPropagation();toggleComments(b);}));
+            document.querySelectorAll('.feed-read-more').forEach(b => b.addEventListener('click', async(e)=>{e.stopPropagation();await readMore(b);}));
+            document.querySelectorAll('.comment-post-btn').forEach(b => b.addEventListener('click', async(e)=>{e.stopPropagation();await postComment(b);}));
+            document.querySelectorAll('.feed-card-action-report').forEach(b => b.addEventListener('click', async(e)=>{e.stopPropagation();await reportPost(b.dataset.id);}));
+        }
+
+        async function toggleLike(b) { const id=b.dataset.id,liked=!b.classList.contains('liked');b.classList.toggle('liked');const ce=b.querySelector('span'),c=parseInt(ce.textContent)||0;ce.textContent=fmtCount(liked?c+1:Math.max(0,c-1));try{await fetch(`/api/feed/${id}/like`,{method:liked?'POST':'DELETE',headers:{'Authorization':`Bearer ${getToken()}`}});}catch(_){} }
+        async function toggleSave(b) { const id=b.dataset.id,saved=!b.classList.contains('saved');b.classList.toggle('saved');try{await fetch(`/api/feed/${id}/save`,{method:saved?'POST':'DELETE',headers:{'Authorization':`Bearer ${getToken()}`}});showToast(saved?'Saved!':'Removed');}catch(_){} }
+        async function repostPost(b) { const id=b.dataset.id;if(!confirm('Repost this?'))return;try{const r=await fetch(`/api/feed/${id}/repost`,{method:'POST',headers:{'Authorization':`Bearer ${getToken()}`}});if(r.ok){b.classList.add('reposted');const ce=b.querySelector('span');ce.textContent=fmtCount((parseInt(ce.textContent)||0)+1);showToast('Reposted!');}}catch(_){alert('Failed');} }
+        async function deletePost(b) { const id=b.dataset.id;if(!confirm('Delete this post?'))return;try{const r=await fetch(`/api/feed/post/${id}`,{method:'DELETE',headers:{'Authorization':`Bearer ${getToken()}`}});if(r.ok){const card=b.closest('.feed-post-card');card.style.opacity='0';card.style.transform='scale(0.95)';card.style.transition='all 0.3s ease';setTimeout(()=>{feed=feed.filter(p=>p.id!=id);renderFeed();},300);showToast('Deleted');}}catch(_){alert('Failed');} }
+        function sharePost(id,title) { if(navigator.share){navigator.share({title:title||'Check this out on Kashi',url:`${location.origin}/feed.html?post=${id}`}).catch(()=>{});}else{navigator.clipboard.writeText(`${location.origin}/feed.html?post=${id}`).then(()=>showToast('Link copied!'));} }
+        async function reportPost(postId) { const reason=prompt('Why are you reporting this post?');if(!reason)return;try{await fetch(`/api/feed/${postId}/report`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${getToken()}`},body:JSON.stringify({reason})});showToast('Report submitted');}catch(_){alert('Failed');} }
+
+        function toggleComments(b) { const card=b.closest('.feed-post-card');let sec=card.querySelector('.comments-inline');if(!sec){sec=document.createElement('div');sec.className='comments-inline visible';sec.innerHTML=`<div class="comments-list" id="comments-${b.dataset.id}"></div><div class="comment-input-row"><input type="text" class="comment-input" placeholder="Write a comment..."><button class="btn btn-primary btn-sm comment-post-btn" data-id="${b.dataset.id}">Post</button></div>`;card.appendChild(sec);loadComments(b.dataset.id,sec.querySelector('.comments-list'));sec.querySelector('.comment-post-btn').addEventListener('click',async(e)=>{e.stopPropagation();await postCommentFromBtn(e.target);});}else{sec.classList.toggle('visible');if(sec.classList.contains('visible'))loadComments(b.dataset.id,sec.querySelector('.comments-list'));} }
+        async function loadComments(postId,container) { try{const r=await fetch(`/api/feed/${postId}/comments`);if(r.ok){const comments=await r.json();container.innerHTML=comments.map(c=>`<div class="comment-item"><div class="comment-avatar">${(c.userName||'?')[0]}</div><div class="comment-body"><p class="comment-user">${esc(c.userName)}</p><p class="comment-text">${esc(c.text)}</p><p class="comment-time">${c.timeAgo||''}</p></div></div>`).join('');}}catch(_){} }
+        async function postComment(b) { const postId=b.dataset.id,input=b.closest('.comment-input-row').querySelector('.comment-input');const text=input.value.trim();if(!text)return;try{const r=await fetch(`/api/feed/${postId}/comments`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${getToken()}`},body:JSON.stringify({text})});if(r.ok){input.value='';loadComments(postId,b.closest('.comments-inline').querySelector('.comments-list'));showToast('Comment posted!');}}catch(_){} }
+        async function postCommentFromBtn(b) { const postId=b.dataset.id,input=b.closest('.comment-input-row').querySelector('.comment-input');const text=input.value.trim();if(!text)return;try{const r=await fetch(`/api/feed/${postId}/comments`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${getToken()}`},body:JSON.stringify({text})});if(r.ok){input.value='';loadComments(postId,b.closest('.comments-inline').querySelector('.comments-list'));showToast('Comment posted!');}}catch(_){} }
+        async function readMore(b) { const postId=b.dataset.id;try{const r=await fetch(`/api/feed/post/${postId}`,{headers:{'Authorization':`Bearer ${getToken()}`}});if(r.ok){const p=await r.json();const card=b.closest('.feed-post-card'),cap=card.querySelector('.feed-card-caption');cap.textContent=p.body;cap.classList.remove('clamped');b.remove();const meta=card.querySelector('.feed-card-meta');if(meta){const ss=meta.querySelectorAll('span');if(ss.length>=3)ss[ss.length-1].textContent=fmtCount(p.views)+' views';}}}catch(_){} }
+        function showToast(m) { const t=$('#feedToast');$('#feedToastText').textContent=m;t.classList.add('visible');clearTimeout(t._timeout);t._timeout=setTimeout(()=>t.classList.remove('visible'),2500); }
+
+        function renderVideoCard(p,ctx,own){return `<div class="feed-post-card" data-type="video" data-id="${p.id}" data-url="${esc(p.url||'')}" data-owner="${own}">${ctx?`<span class="feed-card-context">${esc(ctx)}</span>`:''}<div class="feed-card-thumb">${p.thumbnail?`<img src="${esc(p.thumbnail)}" alt="" loading="lazy">`:'<div class="feed-card-thumb-placeholder"><svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>'}<span class="feed-card-duration">${p.duration||''}</span><span class="feed-card-play-icon"><svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></span></div><div class="feed-card-info"><div class="feed-card-creator"><div class="feed-card-avatar"></div><span>${esc(p.creatorName||'Unknown')}</span></div><p class="feed-card-caption clamped">${esc(p.caption||'Untitled')}</p><div class="feed-card-meta"><span>${fmtCount(p.likes||0)} likes</span><span>·</span><span>${fmtCount(p.views||0)} views</span><span>·</span><span>${p.timeAgo||''}</span></div></div><div class="feed-card-actions"><button class="feed-card-action feed-card-action-like ${p.isLiked?'liked':''}" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"/></svg><span>${fmtCount(p.likes||0)}</span></button><button class="feed-card-action feed-card-action-comment" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg><span>${fmtCount(p.comments||0)}</span></button><button class="feed-card-action feed-card-action-repost ${p.isReposted?'reposted':''}" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>${fmtCount(p.reposts||0)}</span></button><button class="feed-card-action feed-card-action-save ${p.isSaved?'saved':''}" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z"/></svg>Save</button><button class="feed-card-action feed-card-action-share" data-id="${p.id}" data-title="${esc(p.caption||'')}"><svg class="icon" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button><button class="feed-card-action feed-card-action-report" data-id="${p.id}" title="Report"><svg class="icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button>${own?`<button class="feed-card-action feed-card-action-delete" data-id="${p.id}" title="Delete"><svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`:''}</div></div>`;}
+        function renderAdCard(p,ctx,own){return `<div class="feed-post-card" data-type="ad" data-id="${p.id}" data-owner="${own}">${ctx?`<span class="feed-card-context">${esc(ctx)}</span>`:''}<div class="feed-card-ad-label">Sponsored</div><div class="feed-card-thumb">${p.thumbnail?`<img src="${esc(p.thumbnail)}" alt="" loading="lazy">`:'<div class="feed-card-thumb-placeholder" style="background:var(--gold-soft);"><svg class="icon" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg></div>'}<span class="feed-card-play-icon"><svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></span></div><div class="feed-card-info"><p class="feed-card-brand">${esc(p.brand)}</p><p class="feed-card-caption clamped">${esc(p.caption)}</p><div class="feed-card-meta"><span style="color:var(--gold);">Earn ₦${p.reward||5}</span><span>·</span><span>${fmtCount(p.views||0)} views</span><span>·</span><span>${p.timeAgo||''}</span></div></div><div class="feed-card-actions"><button class="feed-card-action feed-card-action-save ${p.isSaved?'saved':''}" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z"/></svg>Save</button><button class="feed-card-action feed-card-action-share" data-id="${p.id}" data-title="${esc(p.brand||'')}"><svg class="icon" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button><button class="feed-card-action feed-card-action-report" data-id="${p.id}" title="Report"><svg class="icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button>${own?`<button class="feed-card-action feed-card-action-delete" data-id="${p.id}" title="Delete"><svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`:''}</div></div>`;}
+        function renderNewsCard(p,ctx,own){const fb=p.body||'',tr=fb.length>200?fb.substring(0,200)+'...':fb,nr=fb.length>200;return `<div class="feed-post-card feed-news-card" data-type="news" data-id="${p.id}" data-link="${esc(p.link||'')}" data-owner="${own}">${ctx?`<span class="feed-card-context">${esc(ctx)}</span>`:''}${p.image?`<div class="feed-news-image"><img src="${esc(p.image)}" alt="" loading="lazy"></div>`:''}<div class="feed-card-info"><span class="feed-news-tag">${esc(p.tag||'News')}</span><h4 class="feed-news-title">${esc(p.title)}</h4><p class="feed-card-caption clamped">${esc(tr)}</p>${nr?`<button class="feed-read-more" data-id="${p.id}">Read full article →</button>`:''}<div class="feed-card-meta"><span>${esc(p.source||'')}</span><span>·</span><span>${fmtCount(p.views||0)} views</span><span>·</span><span>${p.timeAgo||''}</span></div></div><div class="feed-card-actions"><button class="feed-card-action feed-card-action-like ${p.isLiked?'liked':''}" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"/></svg><span>${fmtCount(p.likes||0)}</span></button><button class="feed-card-action feed-card-action-comment" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg><span>${fmtCount(p.comments||0)}</span></button><button class="feed-card-action feed-card-action-repost ${p.isReposted?'reposted':''}" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>${fmtCount(p.reposts||0)}</span></button><button class="feed-card-action feed-card-action-save ${p.isSaved?'saved':''}" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z"/></svg>Save</button><button class="feed-card-action feed-card-action-share" data-id="${p.id}" data-title="${esc(p.title||'')}"><svg class="icon" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button><button class="feed-card-action feed-card-action-report" data-id="${p.id}" title="Report"><svg class="icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button>${own?`<button class="feed-card-action feed-card-action-delete" data-id="${p.id}" title="Delete"><svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`:''}</div></div>`;}
+        function renderSocialCard(p,ctx,own){const fb=p.body||'',tr=fb.length>250?fb.substring(0,250)+'...':fb,nr=fb.length>250;return `<div class="feed-post-card feed-social-card" data-type="social" data-id="${p.id}" data-owner="${own}">${ctx?`<span class="feed-card-context">${esc(ctx)}</span>`:''}<div class="feed-social-header"><div class="feed-card-avatar"></div><div><p class="feed-social-user">${esc(p.userName||'Anonymous')}</p><p class="feed-card-meta">${p.timeAgo||''}</p></div></div>${p.title?`<h4 class="feed-news-title" style="padding:0 14px;">${esc(p.title)}</h4>`:''}<p class="feed-social-body">${esc(tr)}</p>${nr?`<button class="feed-read-more" data-id="${p.id}" style="margin:0 14px 8px;">Read more →</button>`:''}${p.image?`<div class="feed-social-image"><img src="${esc(p.image)}" alt="" loading="lazy"></div>`:''}<div class="feed-card-actions"><button class="feed-card-action feed-card-action-like ${p.isLiked?'liked':''}" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"/></svg><span>${fmtCount(p.likes||0)}</span></button><button class="feed-card-action feed-card-action-comment" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg><span>${fmtCount(p.comments||0)}</span></button><button class="feed-card-action feed-card-action-repost ${p.isReposted?'reposted':''}" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>${fmtCount(p.reposts||0)}</span></button><button class="feed-card-action feed-card-action-save ${p.isSaved?'saved':''}" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z"/></svg>Save</button><button class="feed-card-action feed-card-action-share" data-id="${p.id}" data-title="${esc(p.title||'')}"><svg class="icon" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button><button class="feed-card-action feed-card-action-report" data-id="${p.id}" title="Report"><svg class="icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button>${own?`<button class="feed-card-action feed-card-action-delete" data-id="${p.id}" title="Delete"><svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`:''}</div></div>`;}
+        function renderAnimeCard(p,ctx,own){return `<div class="feed-post-card feed-anime-card" data-type="anime" data-id="${p.id}" data-url="${esc(p.url||'')}" data-owner="${own}">${ctx?`<span class="feed-card-context">${esc(ctx)}</span>`:''}<div class="feed-card-anime-label">Anime</div><div class="feed-card-thumb">${p.thumbnail?`<img src="${esc(p.thumbnail)}" alt="" loading="lazy">`:'<div class="feed-card-thumb-placeholder" style="background:rgba(74,144,217,0.1);"><svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>'}<span class="feed-card-play-icon"><svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></span></div><div class="feed-card-info"><span class="feed-anime-episode">${esc(p.episode||'Episode 1')}</span><h4 class="feed-news-title">${esc(p.title)}</h4><p class="feed-card-caption clamped">${esc(p.caption||p.body||'')}</p><div class="feed-card-meta"><span>${fmtCount(p.likes||0)} likes</span><span>·</span><span>${fmtCount(p.views||0)} views</span><span>·</span><span>${p.timeAgo||''}</span></div></div><div class="feed-card-actions"><button class="feed-card-action feed-card-action-like ${p.isLiked?'liked':''}" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"/></svg><span>${fmtCount(p.likes||0)}</span></button><button class="feed-card-action feed-card-action-comment" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg><span>${fmtCount(p.comments||0)}</span></button><button class="feed-card-action feed-card-action-repost ${p.isReposted?'reposted':''}" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>${fmtCount(p.reposts||0)}</span></button><button class="feed-card-action feed-card-action-save ${p.isSaved?'saved':''}" data-id="${p.id}"><svg class="icon" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z"/></svg>Save</button><button class="feed-card-action feed-card-action-share" data-id="${p.id}" data-title="${esc(p.title||'')}"><svg class="icon" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button><button class="feed-card-action feed-card-action-report" data-id="${p.id}" title="Report"><svg class="icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button>${own?`<button class="feed-card-action feed-card-action-delete" data-id="${p.id}" title="Delete"><svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`:''}</div></div>`;}
+
+        const vfs=$('#videoFullscreen'),vfe=$('#videoFsEl'),vfp=$('#videoFsProgress'),val=$('#videoAdLabel'),vft=$('#videoFsTitle'),vfb=$('#videoFsBrand'),vet=$('#videoEarnToast'),ea=$('#earnAmount');
+        let cvd=null,asi=null,iap=false;
+        function openVideoPlayer(d){cvd=d;vfs.style.display='flex';document.body.style.overflow='hidden';vft.textContent=d.caption||d.title||'';vfb.textContent=d.brand||d.creatorName||'';if(d.isSponsored&&d.type==='ad'){startAdSession(d.id).then(s=>{asi=s;if(s){val.style.display='block';iap=true;vfe.src=d.url||'';vfe.play();}});}else{val.style.display='none';iap=false;vfe.src=d.url||'';vfe.play();}vfp.style.width='0%';}
+        function closeVideoPlayer(){vfe.pause();vfe.src='';vfs.style.display='none';document.body.style.overflow='';cvd=null;asi=null;iap=false;}
+        async function startAdSession(adId){try{const r=await fetch(${API_BASE}/api/earn/ad/start',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${getToken()}`},body:JSON.stringify({adId})});if(r.ok){const d=await r.json();return d.sessionId;}}catch(_){}return null;}
+        async function verifyAdAndCredit(){if(!asi||!cvd)return;try{const r=await fetch(${API_BASE}/api/earn/ad/verify',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${getToken()}`},body:JSON.stringify({sessionId:asi,watchDuration:Math.floor(vfe.currentTime),videoDuration:Math.floor(vfe.duration)})});if(r.ok){const d=await r.json();if(d.credited){ea.textContent=d.amount;vet.style.display='block';setTimeout(()=>vet.style.display='none',2500);window.parent.postMessage({type:'BALANCE_UPDATED',amount:d.amount},'*');}if(d.limitReached){window.parent.postMessage({type:'PREMIUM_GATE',title:'Daily limit reached',desc:'Free accounts capped at 20/day.'},'*');}}}catch(_){}}
+        vfe.addEventListener('timeupdate',()=>{if(vfe.duration)vfp.style.width=(vfe.currentTime/vfe.duration)*100+'%';});
+        vfe.addEventListener('ended',()=>{if(iap&&asi){verifyAdAndCredit();val.style.display='none';iap=false;asi=null;closeVideoPlayer();}else{closeVideoPlayer();}});
+        $('#closeVideoFs').addEventListener('click',closeVideoPlayer);
+        document.addEventListener('keydown',(e)=>{if(e.key==='Escape'&&vfs.style.display==='flex')closeVideoPlayer();});
+
+        const sentinel=$('#feedSentinel');
+        new IntersectionObserver((entries)=>{if(entries[0].isIntersecting&&hasMore&&!isLoading)loadFeed(currentFilter,true);},{threshold:0.1}).observe(sentinel);
+
+        document.querySelectorAll('.feed-filter').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.feed-filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');loadFeed(b.dataset.filter);}));
+
+        const cpm=$('#createPostModal'),pt=$('#postType'),pb=$('#postBody'),pcc=$('#postCharCount'),plg=$('#postLinkGroup'),peg=$('#postEpisodeGroup');
+        function ocm(){cpm.classList.add('visible');document.body.style.overflow='hidden';}
+        function ccm(){cpm.classList.remove('visible');document.body.style.overflow='';}
+        $('#openCreatePost').addEventListener('click',ocm);$('#closeCreatePost').addEventListener('click',ccm);$('#cancelCreatePost').addEventListener('click',ccm);
+        cpm.addEventListener('click',(e)=>{if(e.target===cpm)ccm();});
+        document.addEventListener('keydown',(e)=>{if(e.key==='Escape'&&cpm.classList.contains('visible'))ccm();});
+        pt.addEventListener('change',()=>{plg.style.display=pt.value==='news'?'block':'none';peg.style.display=pt.value==='anime'?'block':'none';});
+        pb.addEventListener('input',()=>{pcc.textContent=`${pb.value.length} / 2000`;pcc.classList.toggle('limit',pb.value.length>=2000);});
+        $('#createPostForm').addEventListener('submit',async(e)=>{
+            e.preventDefault();const btn=e.target.querySelector('.btn-primary');btn.classList.add('loading');btn.disabled=true;
+            try{const body={type:pt.value,title:$('#postTitle').value.trim(),body:pb.value.trim(),link:$('#postLink').value.trim()||null};
+                if(pt.value==='anime')body.episode=$('#postEpisode').value.trim()||null;
+                const r=await fetch(${API_BASE}/api/feed/post',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${getToken()}`},body:JSON.stringify(body)});
+                if(!r.ok){const err=await r.json();throw new Error(err.error||'Failed');}
+                ccm();$('#createPostForm').reset();pcc.textContent='0/2000';plg.style.display='none';peg.style.display='none';loadFeed(currentFilter);showToast('Post created!');
+            }catch(err){alert(err.message);}
+            finally{btn.classList.remove('loading');btn.disabled=false;}
+        });
+        $('#openUpload').addEventListener('click',()=>{window.parent.postMessage({type:'NAVIGATE',page:'upload'},'*');});
+
+        const hasVisited = localStorage.getItem('kashi_onboarded');
+        if (!hasVisited) { const banner = $('#onboardingBanner'); if (banner) { banner.style.display = 'block'; localStorage.setItem('kashi_onboarded', 'true'); } }
+
+        let touchStartY = 0;
+        document.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, { passive: true });
+        document.addEventListener('touchend', (e) => { const diff = e.changedTouches[0].clientY - touchStartY; if (diff > 80 && window.scrollY === 0) { loadFeed(currentFilter); showToast('Refreshing...'); } });
+
+        function loadUserFromStorage() { const s = localStorage.getItem('kashi_user'); if (s) { const u = JSON.parse(s); $('#feedUserAvatar').textContent = u.initials || '??'; } }
+        loadCurrentUser(); loadUserFromStorage(); loadEarnProgress(); loadFeed();
+    </script>
+</body>
+</html>

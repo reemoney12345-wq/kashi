@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>const API_BASE='https://kashi-atxm.onrender.com';</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Kashi Icons</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0f0f0f; color: #e8e8e8; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; text-align: center; }
+        h1 { font-family: 'Space Grotesk', sans-serif; margin-bottom: 8px; }
+        p { color: #a0a0a0; margin-bottom: 24px; font-size: 0.9rem; }
+        canvas { display: none; }
+        .icons-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 24px 0; }
+        .icon-preview { text-align: center; }
+        .icon-preview img { border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); }
+        .icon-preview span { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #6b6b6b; margin-top: 6px; }
+        button { padding: 14px 28px; background: #f0b93f; color: #000; border: none; border-radius: 999px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+        button:hover { background: #f6c968; }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>Kashi Icon Generator</h1>
+    <p>Click to download all PWA icon sizes as a ZIP</p>
+    <canvas id="iconCanvas" width="512" height="512"></canvas>
+    <div class="icons-grid" id="iconsGrid"></div>
+    <button onclick="generateAll()">Download All Icons (ZIP)</button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        const canvas = document.getElementById('iconCanvas');
+        const ctx = canvas.getContext('2d');
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        function drawIcon(size) {
+            canvas.width = size; canvas.height = size;
+            const r = size * 0.22;
+            ctx.beginPath(); ctx.roundRect(0, 0, size, size, r); ctx.fillStyle = '#1a1a1a'; ctx.fill();
+            const cx = size/2, cy = size/2, cr = size*0.28;
+            ctx.beginPath(); ctx.arc(cx, cy, cr, 0, Math.PI*2); ctx.fillStyle = '#f0b93f'; ctx.fill();
+            const bs = size*0.28; ctx.save(); ctx.translate(cx, cy); ctx.fillStyle = '#0f0f0f';
+            ctx.beginPath(); ctx.moveTo(bs*0.35, -bs); ctx.lineTo(-bs*0.45, bs*0.2); ctx.lineTo(bs*0.05, bs*0.2); ctx.lineTo(-bs*0.15, bs); ctx.lineTo(bs*0.65, -bs*0.2); ctx.lineTo(bs*0.15, -bs*0.2); ctx.closePath(); ctx.fill(); ctx.restore();
+        }
+        sizes.forEach((size) => { drawIcon(size); const dataUrl = canvas.toDataURL('image/png'); const wrapper = document.createElement('div'); wrapper.className = 'icon-preview'; const img = document.createElement('img'); img.src = dataUrl; img.width = Math.min(size, 96); img.height = Math.min(size, 96); const label = document.createElement('span'); label.textContent = `${size}×${size}`; wrapper.appendChild(img); wrapper.appendChild(label); document.getElementById('iconsGrid').appendChild(wrapper); });
+        async function generateAll() { const zip = new JSZip(); const folder = zip.folder('icons'); for (const size of sizes) { drawIcon(size); const dataUrl = canvas.toDataURL('image/png'); folder.file(`icon-${size}.png`, dataUrl.split(',')[1], { base64: true }); } const blob = await zip.generateAsync({ type: 'blob' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'kashi-icons.zip'; a.click(); URL.revokeObjectURL(url); }
+    </script>
+</body>
+</html>

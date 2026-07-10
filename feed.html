@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>const API_BASE='https://kashi-atxm.onrender.com';</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0f0f0f">
+    <meta name="description" content="Kashi — Hustle made easy. Watch and earn.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Kashi">
+    <link rel="manifest" href="/manifest.json">
+    <title>Kashi — Hustle made easy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-main: #0f0f0f; --bg-card: #1a1a1a; --border-subtle: rgba(255,255,255,0.06); --border-visible: rgba(255,255,255,0.10);
+            --text-primary: #e8e8e8; --text-secondary: #a0a0a0; --text-tertiary: #6b6b6b;
+            --gold: #f0b93f; --gold-hover: #f6c968; --gold-soft: rgba(240,185,63,0.12); --green: #2fa84f; --red: #e04a3a;
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 999px;
+            --font-display: 'Space Grotesk', sans-serif; --font-sans: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+            --sidebar-width: 260px; --topbar-height: 56px; --bottom-nav-height: 64px; --touch-target: 48px;
+        }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { font-family: var(--font-sans); background: var(--bg-main); color: var(--text-primary); display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
+        svg { display: block; }
+        .icon { stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+        .sidebar-frame { width: var(--sidebar-width); height: 100vh; height: 100dvh; border: none; flex-shrink: 0; background: var(--bg-card); }
+        .sidebar-frame.right-sidebar { border-left: 1px solid var(--border-subtle); }
+        .app-main { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100vh; height: 100dvh; }
+        .app-topbar { height: var(--topbar-height); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; gap: 16px; }
+        .app-topbar-left { display: flex; align-items: center; gap: 12px; }
+        .app-menu-toggle { display: none; background: none; border: none; color: var(--text-primary); cursor: pointer; padding: 6px; min-width: var(--touch-target); min-height: var(--touch-target); align-items: center; justify-content: center; }
+        .app-menu-toggle .icon { width: 24px; height: 24px; }
+        .app-topbar-title { font-family: var(--font-display); font-size: 1rem; font-weight: 600; }
+        .app-topbar-actions { display: flex; align-items: center; gap: 12px; position: relative; }
+        .app-topbar-btn { display: flex; align-items: center; justify-content: center; width: var(--touch-target); height: var(--touch-target); border-radius: 10px; background: transparent; border: 1px solid var(--border-visible); color: var(--text-secondary); cursor: pointer; transition: all 0.15s ease; position: relative; }
+        .app-topbar-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+        .app-topbar-btn .icon { width: 18px; height: 18px; }
+        .app-notif-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--red); display: none; }
+        .app-notif-dot.visible { display: block; }
+        .app-content-area { flex: 1; overflow: hidden; position: relative; }
+        .app-content-area iframe { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; opacity: 0; transition: opacity 0.15s ease; pointer-events: none; }
+        .app-content-area iframe.active { opacity: 1; pointer-events: auto; }
+        .app-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; }
+        .app-overlay.visible { display: block; }
+        .app-bottom-nav { display: none; height: var(--bottom-nav-height); border-top: 1px solid var(--border-subtle); flex-shrink: 0; padding: 0 8px; align-items: center; justify-content: space-around; background: var(--bg-main); }
+        .app-bottom-nav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--text-tertiary); text-decoration: none; font-size: 0.6rem; font-weight: 500; padding: 6px 8px; min-width: var(--touch-target); min-height: var(--touch-target); }
+        .app-bottom-nav a.active { color: var(--gold); }
+        .app-bottom-nav a .icon { width: 22px; height: 22px; }
+        @media (min-width: 1025px) { .app-menu-toggle { display: none !important; } .app-overlay { display: none !important; } .app-bottom-nav { display: none !important; } }
+        @media (max-width: 1024px) { .sidebar-frame { position: fixed; top: 0; left: 0; z-index: 300; transform: translateX(-100%); transition: transform 0.25s ease; } .sidebar-frame.open { transform: translateX(0); } .sidebar-frame.right-sidebar { display: none !important; } .app-menu-toggle { display: flex; } .app-bottom-nav { display: flex; } }
+        @media (max-width: 640px) { .app-topbar { padding: 0 12px; } .app-topbar-title { font-size: 0.9rem; } }
+    </style>
+</head>
+<body>
+    <div class="app-overlay" id="sidebarOverlay"></div>
+    <iframe src="leftsidebar.html" class="sidebar-frame" id="leftSidebar" title="Navigation"></iframe>
+    <main class="app-main">
+        <header class="app-topbar">
+            <div class="app-topbar-left">
+                <button class="app-menu-toggle" id="menuToggle" aria-label="Open menu">
+                    <svg class="icon" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <span class="app-topbar-title" id="topbarTitle">Feed</span>
+            </div>
+            <div class="app-topbar-actions">
+                <button class="app-topbar-btn" id="notifBtn" aria-label="Notifications">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="app-notif-dot" id="notifDot"></span>
+                </button>
+            </div>
+        </header>
+        <div class="app-content-area" id="contentArea">
+            <iframe src="feed-content.html" class="active" id="pageFeed" title="Feed"></iframe>
+            <iframe src="about:blank" id="pageEarn" data-src="earn.html" title="Earn"></iframe>
+            <iframe src="about:blank" id="pageHistory" data-src="history.html" title="Watch History"></iframe>
+            <iframe src="about:blank" id="pageDashboard" data-src="dashboard.html" title="Dashboard"></iframe>
+            <iframe src="about:blank" id="pageWallet" data-src="wallet.html" title="Wallet"></iframe>
+            <iframe src="about:blank" id="pageProfile" data-src="profile.html" title="Profile"></iframe>
+            <iframe src="about:blank" id="pageSettings" data-src="settings.html" title="Settings"></iframe>
+            <iframe src="about:blank" id="pageUpload" data-src="upload.html" title="Upload"></iframe>
+        </div>
+        <nav class="app-bottom-nav" id="bottomNav">
+            <a href="#" data-page="feed" class="active"><svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>Feed</a>
+            <a href="#" data-page="earn"><svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>Earn</a>
+            <a href="#" data-page="dashboard"><svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>Earnings</a>
+            <a href="#" data-page="wallet"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Wallet</a>
+        </nav>
+    </main>
+    <iframe src="rightsidebar.html" class="sidebar-frame right-sidebar" id="rightSidebar" title="Sponsored"></iframe>
+
+    <script>
+        const $ = (sel) => document.querySelector(sel);
+        const $$ = (sel) => document.querySelectorAll(sel);
+
+        const pageMap = {
+            feed:     { iframe: 'pageFeed',     title: 'Feed' },
+            earn:     { iframe: 'pageEarn',     title: 'Earn' },
+            history:  { iframe: 'pageHistory',  title: 'Watch History' },
+            dashboard:{ iframe: 'pageDashboard',title: 'Dashboard' },
+            wallet:   { iframe: 'pageWallet',   title: 'Wallet' },
+            profile:  { iframe: 'pageProfile',  title: 'Profile' },
+            settings: { iframe: 'pageSettings', title: 'Settings' },
+            upload:   { iframe: 'pageUpload',   title: 'Upload' },
+        };
+        let currentPage = 'feed';
+
+        function navigateTo(page) {
+            if (!pageMap[page]) return;
+            if (currentPage === page) { closeLeftSidebar(); return; }
+            const oldIframe = document.getElementById(pageMap[currentPage].iframe);
+            const newIframe = document.getElementById(pageMap[page].iframe);
+            if (newIframe.src === 'about:blank' && newIframe.dataset.src) newIframe.src = newIframe.dataset.src;
+            oldIframe.classList.remove('active');
+            newIframe.classList.add('active');
+            currentPage = page;
+            $('#topbarTitle').textContent = pageMap[page].title;
+            $$('#bottomNav a').forEach(a => a.classList.remove('active'));
+            const bl = document.querySelector(`#bottomNav a[data-page="${page}"]`);
+            if (bl) bl.classList.add('active');
+            $('#leftSidebar').contentWindow?.postMessage({ type: 'ACTIVE_PAGE', page }, '*');
+            closeLeftSidebar();
+        }
+
+        window.addEventListener('message', (e) => { if (e.data?.type === 'NAVIGATE') navigateTo(e.data.page); });
+        $$('#bottomNav a').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); navigateTo(link.dataset.page); }); });
+
+        const leftSidebar = $('#leftSidebar');
+        const overlay = $('#sidebarOverlay');
+        const menuToggle = $('#menuToggle');
+        function closeLeftSidebar() { leftSidebar.classList.remove('open'); overlay.classList.remove('visible'); }
+        menuToggle.addEventListener('click', () => {
+            if (leftSidebar.classList.contains('open')) closeLeftSidebar();
+            else { leftSidebar.classList.add('open'); overlay.classList.add('visible'); }
+        });
+        overlay.addEventListener('click', closeLeftSidebar);
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLeftSidebar(); });
+        window.addEventListener('resize', () => { if (window.innerWidth > 1024) closeLeftSidebar(); });
+    </script>
+</body>
+</html>

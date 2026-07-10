@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>const API_BASE='https://kashi-atxm.onrender.com';</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f0f0f">
+<title>Admin Panel — Kashi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg-main:#0f0f0f; --bg-card:#1a1a1a; --bg-raised:#212121; --bg-hover:#252525;
+  --border-subtle:rgba(255,255,255,0.06); --border-visible:rgba(255,255,255,0.10);
+  --text-primary:#e8e8e8; --text-secondary:#a0a0a0; --text-tertiary:#6b6b6b;
+  --gold:#f0b93f; --gold-hover:#f6c968; --gold-dim:rgba(240,185,63,0.12);
+  --green:#2fa84f; --green-dim:rgba(47,168,79,0.12);
+  --red:#e04a3a; --red-dim:rgba(224,74,58,0.10);
+  --blue:#4a90d9; --blue-dim:rgba(74,144,217,0.12);
+  --purple:#9d7ce0; --purple-dim:rgba(157,124,224,0.12);
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:999px;
+  --font-display:'Space Grotesk',sans-serif; --font-sans:'Inter',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  --sidebar-w:236px;
+}
+html{font-size:16px;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font-sans);background:var(--bg-main);color:var(--text-primary);min-height:100vh;}
+body::-webkit-scrollbar{width:6px;height:6px;}
+body::-webkit-scrollbar-track{background:transparent;}
+body::-webkit-scrollbar-thumb{background:var(--border-visible);border-radius:4px;}
+svg{display:block;}
+.icon{stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+button,input,select,textarea{font-family:inherit;color:inherit;}
+a{color:inherit;}
+
+/* ===== Layout ===== */
+.app{display:flex;min-height:100vh;}
+.sidebar{
+  width:var(--sidebar-w); flex-shrink:0; background:#131313; border-right:1px solid var(--border-subtle);
+  display:flex; flex-direction:column; position:sticky; top:0; height:100vh; padding:20px 14px; gap:4px; z-index:40;
+}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 10px 22px;}
+.brand-mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--gold),#c98a1f);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;color:#141414;font-size:0.95rem;flex-shrink:0;}
+.brand-text{font-family:var(--font-display);font-weight:700;font-size:1.05rem;letter-spacing:-0.01em;}
+.brand-sub{font-size:0.62rem;color:var(--text-tertiary);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.08em;margin-top:1px;}
+
+.nav-group-label{font-size:0.62rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.08em;font-family:var(--font-mono);padding:14px 10px 6px;}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer;color:var(--text-secondary);font-size:0.84rem;font-weight:500;border:none;background:transparent;width:100%;text-align:left;position:relative;transition:background .12s,color .12s;}
+.nav-item:hover{background:var(--bg-hover);color:var(--text-primary);}
+.nav-item.active{background:var(--gold-dim);color:var(--gold);}
+.nav-item .icon{width:17px;height:17px;}
+.nav-badge{margin-left:auto;font-family:var(--font-mono);font-size:0.62rem;font-weight:600;background:var(--red);color:#fff;padding:1px 6px;border-radius:var(--radius-xl);min-width:16px;text-align:center;}
+.nav-item.active .nav-badge{background:var(--gold);color:#1a1400;}
+.nav-badge.zero{display:none;}
+
+.sidebar-footer{margin-top:auto;padding-top:14px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:10px;padding:10px;}
+.avatar-sm{width:30px;height:30px;border-radius:50%;background:var(--bg-raised);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:0.72rem;font-weight:600;color:var(--gold);border:1px solid var(--border-visible);flex-shrink:0;}
+.sidebar-footer-name{font-size:0.78rem;font-weight:600;}
+.sidebar-footer-role{font-size:0.65rem;color:var(--text-tertiary);}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column;}
+.topbar{position:sticky;top:0;z-index:30;background:rgba(15,15,15,0.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--border-subtle);padding:14px 28px;display:flex;align-items:center;gap:16px;}
+.menu-toggle{display:none;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:7px;cursor:pointer;color:var(--text-secondary);}
+.page-title{font-family:var(--font-display);font-size:1.15rem;font-weight:700;}
+.search-global{margin-left:auto;position:relative;width:280px;max-width:40vw;}
+.search-global input{width:100%;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-xl);padding:8px 14px 8px 34px;font-size:0.8rem;outline:none;transition:border-color .12s;}
+.search-global input:focus{border-color:var(--gold);}
+.search-global .icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-tertiary);}
+.topbar-btn{position:relative;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:8px;cursor:pointer;color:var(--text-secondary);display:flex;}
+.topbar-btn:hover{color:var(--text-primary);border-color:var(--border-visible);}
+.topbar-btn .icon{width:16px;height:16px;}
+.dot-indicator{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg-main);}
+
+.content{padding:26px 28px 60px;max-width:1180px;width:100%;margin:0 auto;}
+.page{display:none;flex-direction:column;gap:22px;}
+.page.active{display:flex;}
+
+h2.section-h{font-family:var(--font-display);font-size:1rem;font-weight:600;}
+.muted{color:var(--text-tertiary);font-size:0.78rem;}
+
+/* ===== Stat cards ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.stat-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px;position:relative;overflow:hidden;}
+.stat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.stat-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.stat-icon .icon{width:15px;height:15px;}
+.stat-trend{font-family:var(--font-mono);font-size:0.68rem;font-weight:600;padding:2px 7px;border-radius:var(--radius-xl);}
+.stat-trend.up{color:var(--green);background:var(--green-dim);}
+.stat-trend.down{color:var(--red);background:var(--red-dim);}
+.stat-value{font-family:var(--font-mono);font-size:1.4rem;font-weight:700;}
+.stat-label{font-size:0.72rem;color:var(--text-tertiary);margin-top:3px;}
+
+/* ===== Chart ===== */
+.chart-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px;}
+.chart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.chart-legend{display:flex;gap:14px;font-size:0.7rem;color:var(--text-tertiary);font-family:var(--font-mono);}
+.legend-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;}
+.two-col{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
+
+/* ===== Section / list card ===== */
+.section-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;}
+.section-header{padding:16px 20px;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.section-title{font-family:var(--font-display);font-size:0.9rem;font-weight:600;display:flex;align-items:center;gap:8px;}
+.section-count{font-family:var(--font-mono);font-size:0.7rem;color:var(--text-tertiary);background:rgba(255,255,255,0.04);padding:4px 10px;border-radius:var(--radius-xl);}
+.toolbar{padding:12px 20px;border-bottom:1px solid var(--border-subtle);display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.toolbar-search{position:relative;flex:1;min-width:160px;}
+.toolbar-search input{width:100%;background:var(--bg-main);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:7px 10px 7px 30px;font-size:0.78rem;outline:none;}
+.toolbar-search input:focus{border-color:var(--gold);}
+.toolbar-search .icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-tertiary);}
+.select-filter{background:var(--bg-main);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:7px 10px;font-size:0.78rem;outline:none;cursor:pointer;}
+.select-filter:focus{border-color:var(--gold);}
+.bulk-bar{display:none;padding:10px 20px;background:var(--gold-dim);border-bottom:1px solid var(--border-subtle);align-items:center;gap:10px;font-size:0.78rem;color:var(--gold);}
+.bulk-bar.show{display:flex;}
+
+.list-item{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border-subtle);}
+.list-item:last-child{border-bottom:none;}
+.list-item:hover{background:rgba(255,255,255,0.015);}
+.list-item-info{flex:1;min-width:0;}
+.list-item-title{font-size:0.85rem;font-weight:500;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.list-item-meta{font-size:0.7rem;color:var(--text-tertiary);font-family:var(--font-mono);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.list-item-amount{font-family:var(--font-mono);font-size:0.9rem;font-weight:600;color:var(--gold);flex-shrink:0;white-space:nowrap;}
+.chk{width:15px;height:15px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;}
+
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:var(--radius-xl);font-family:var(--font-mono);font-size:0.6rem;font-weight:600;white-space:nowrap;}
+.badge-warning{background:var(--gold-dim);color:var(--gold);}
+.badge-danger{background:var(--red-dim);color:var(--red);}
+.badge-success{background:var(--green-dim);color:var(--green);}
+.badge-info{background:var(--blue-dim);color:var(--blue);}
+.badge-muted{background:rgba(255,255,255,0.05);color:var(--text-tertiary);}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-family:var(--font-sans);font-weight:600;border:none;border-radius:var(--radius-xl);cursor:pointer;padding:8px 16px;font-size:0.75rem;transition:all .15s ease;white-space:nowrap;}
+.btn .icon{width:13px;height:13px;}
+.btn-approve{background:var(--green);color:#fff;}
+.btn-approve:hover{background:#25963f;}
+.btn-reject{background:transparent;color:var(--red);border:1px solid rgba(224,74,58,0.3);}
+.btn-reject:hover{background:var(--red-dim);}
+.btn-primary{background:var(--gold);color:#1a1400;}
+.btn-primary:hover{background:var(--gold-hover);}
+.btn-secondary{background:var(--bg-raised);color:var(--text-primary);border:1px solid var(--border-visible);}
+.btn-secondary:hover{background:var(--bg-hover);}
+.btn-ghost{background:transparent;color:var(--text-secondary);border:1px solid var(--border-subtle);}
+.btn-ghost:hover{color:var(--text-primary);border-color:var(--border-visible);}
+.btn-sm{padding:5px 11px;font-size:0.7rem;}
+.btn:disabled{opacity:0.4;cursor:not-allowed;}
+.btn-icon{padding:7px;border-radius:var(--radius-sm);}
+
+.empty-state{padding:44px 20px;text-align:center;color:var(--text-tertiary);}
+.empty-state .icon{width:32px;height:32px;margin:0 auto 10px;opacity:0.4;}
+.empty-state-title{font-size:0.85rem;color:var(--text-secondary);font-weight:500;margin-bottom:3px;}
+.empty-state-sub{font-size:0.72rem;}
+
+.pagination{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-top:1px solid var(--border-subtle);font-size:0.72rem;color:var(--text-tertiary);}
+.pagination-btns{display:flex;gap:6px;}
+
+/* ===== Activity feed ===== */
+.feed-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border-subtle);}
+.feed-item:last-child{border-bottom:none;}
+.feed-dot{width:7px;height:7px;border-radius:50%;margin-top:6px;flex-shrink:0;}
+.feed-text{font-size:0.78rem;line-height:1.4;}
+.feed-text b{font-weight:600;}
+.feed-time{font-size:0.65rem;color:var(--text-tertiary);font-family:var(--font-mono);margin-top:2px;}
+
+/* ===== Table (users) ===== */
+.tbl{width:100%;border-collapse:collapse;font-size:0.8rem;}
+.tbl th{text-align:left;font-family:var(--font-mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);padding:10px 16px;border-bottom:1px solid var(--border-subtle);white-space:nowrap;}
+.tbl td{padding:11px 16px;border-bottom:1px solid var(--border-subtle);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:rgba(255,255,255,0.015);}
+.user-cell{display:flex;align-items:center;gap:10px;}
+.tbl-wrap{overflow-x:auto;}
+.name-strong{font-weight:600;font-size:0.82rem;}
+.sub-mono{font-size:0.68rem;color:var(--text-tertiary);font-family:var(--font-mono);}
+
+/* ===== Forms ===== */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field.full{grid-column:1/-1;}
+.field label{font-size:0.72rem;color:var(--text-secondary);font-weight:500;}
+.field input,.field select,.field textarea{background:var(--bg-main);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:9px 12px;font-size:0.82rem;outline:none;transition:border-color .12s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);}
+.field textarea{resize:vertical;min-height:70px;}
+.field-hint{font-size:0.68rem;color:var(--text-tertiary);}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border-subtle);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-row-label{font-size:0.83rem;font-weight:500;}
+.toggle-row-sub{font-size:0.7rem;color:var(--text-tertiary);margin-top:2px;}
+.switch{position:relative;width:38px;height:22px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;}
+.switch-track{position:absolute;inset:0;background:var(--bg-raised);border:1px solid var(--border-visible);border-radius:var(--radius-xl);cursor:pointer;transition:background .15s;}
+.switch-track::before{content:'';position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-tertiary);border-radius:50%;transition:transform .15s,background .15s;}
+.switch input:checked + .switch-track{background:var(--gold-dim);border-color:var(--gold);}
+.switch input:checked + .switch-track::before{transform:translateX(16px);background:var(--gold);}
+.segment{display:flex;gap:6px;flex-wrap:wrap;}
+.seg-btn{padding:7px 13px;border-radius:var(--radius-xl);border:1px solid var(--border-subtle);background:var(--bg-main);color:var(--text-secondary);font-size:0.75rem;cursor:pointer;}
+.seg-btn.active{background:var(--gold-dim);color:var(--gold);border-color:transparent;}
+
+/* ===== Modal ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--bg-card);border:1px solid var(--border-visible);border-radius:var(--radius-lg);width:100%;max-width:480px;max-height:88vh;overflow-y:auto;animation:modalIn .15s ease;}
+.modal.wide{max-width:600px;}
+@keyframes modalIn{from{opacity:0;transform:translateY(8px) scale(0.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;}
+.modal-title{font-family:var(--font-display);font-size:1rem;font-weight:700;}
+.modal-close{background:var(--bg-raised);border:none;color:var(--text-secondary);width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{color:var(--text-primary);}
+.modal-body{padding:20px 22px;display:flex;flex-direction:column;gap:16px;}
+.modal-footer{padding:16px 22px;border-top:1px solid var(--border-subtle);display:flex;justify-content:flex-end;gap:10px;}
+.detail-row{display:flex;justify-content:space-between;font-size:0.8rem;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.detail-row:last-child{border-bottom:none;}
+.detail-row span:first-child{color:var(--text-tertiary);}
+.detail-row span:last-child{font-weight:500;text-align:right;}
+
+/* ===== Toasts ===== */
+.toast-stack{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:200;max-width:320px;}
+.toast{background:var(--bg-raised);border:1px solid var(--border-visible);border-left:3px solid var(--green);border-radius:var(--radius-sm);padding:12px 14px;font-size:0.78rem;display:flex;align-items:flex-start;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,0.4);animation:toastIn .18s ease;}
+.toast.error{border-left-color:var(--red);}
+.toast.info{border-left-color:var(--blue);}
+@keyframes toastIn{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:translateX(0);}}
+.toast .icon{width:15px;height:15px;flex-shrink:0;margin-top:1px;}
+
+/* ===== Mobile ===== */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:39;}
+.sidebar-overlay.show{display:block;}
+@media (max-width:900px){
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .two-col{grid-template-columns:1fr;}
+  .form-grid{grid-template-columns:1fr;}
+}
+@media (max-width:760px){
+  .menu-toggle{display:flex;}
+  .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%);transition:transform .2s ease;box-shadow:0 0 40px rgba(0,0,0,0.5);}
+  .sidebar.open{transform:translateX(0);}
+  .content{padding:18px 14px 50px;}
+  .topbar{padding:12px 14px;}
+  .search-global{display:none;}
+  .page-title{font-size:1rem;}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">K</div>
+      <div>
+        <div class="brand-text">Kashi</div>
+        <div class="brand-sub">Admin Console</div>
+      </div>
+    </div>
+
+    <div class="nav-group-label">Overview</div>
+    <button class="nav-item active" data-page="overview">
+      <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Dashboard
+    </button>
+
+    <div class="nav-group-label">Approvals</div>
+    <button class="nav-item" data-page="payouts">
+      <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
+      Payouts <span class="nav-badge" id="navBadgePayouts">0</span>
+    </button>
+    <button class="nav-item" data-page="tasks">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Task Reviews <span class="nav-badge" id="navBadgeTasks">0</span>
+    </button>
+    <button class="nav-item" data-page="campaigns">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M3 11v3a1 1 0 0 0 1 1h3l4 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 8a4 4 0 0 1 0 8"/><path d="M19 5a8 8 0 0 1 0 14"/></svg>
+      Campaigns <span class="nav-badge" id="navBadgeCampaigns">0</span>
+    </button>
+
+    <div class="nav-group-label">Manage</div>
+    <button class="nav-item" data-page="users">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><circle cx="17.5" cy="9" r="2.8"/><path d="M21.5 20c0-2.8-1.9-5-4.7-5.6"/></svg>
+      Users
+    </button>
+    <button class="nav-item" data-page="broadcast">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+      Broadcast
+    </button>
+    <button class="nav-item" data-page="activity">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg>
+      Activity Log
+    </button>
+    <button class="nav-item" data-page="settings">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </button>
+
+    <div class="sidebar-footer">
+      <div class="avatar-sm" id="adminAvatar">–</div>
+      <div>
+        <div class="sidebar-footer-name" id="adminName">Loading…</div>
+        <div class="sidebar-footer-role" id="adminEmail"></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+        <svg class="icon" viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <div class="page-title" id="pageTitle">Dashboard</div>
+      <div class="search-global">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="globalSearch" aria-label="Search users, payouts, tasks">
+      </div>
+      <button class="topbar-btn" id="notifBtn" title="Notifications">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="dot-indicator" id="notifDot"></span>
+      </button>
+      <button class="topbar-btn" id="refreshBtn" title="Refresh data">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+      </button>
+    </div>
+
+    <div class="content">
+
+      <!-- ================= OVERVIEW ================= -->
+      <section class="page active" id="page-overview">
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card">
+            <div class="stat-top"><div class="stat-icon" style="background:var(--blue-dim);color:var(--blue);"><svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/></svg></div><span class="stat-trend up" id="trendUsers">+0%</span></div>
+            <p class="stat-value" id="statUsers">–</p><p class="stat-label">Total Users</p>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top"><div class="stat-icon" style="background:var(--purple-dim);color:var(--purple);"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg></div><span class="stat-trend up" id="trendPosts">+0%</span></div>
+            <p class="stat-value" id="statPosts">–</p><p class="stat-label">Active Posts</p>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top"><div class="stat-icon" style="background:var(--gold-dim);color:var(--gold);"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><span class="stat-trend down" id="trendPayouts">0</span></div>
+            <p class="stat-value" id="statPayouts">–</p><p class="stat-label">Pending Payouts</p>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top"><div class="stat-icon" style="background:var(--green-dim);color:var(--green);"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><span class="stat-trend up" id="trendRevenue">+0%</span></div>
+            <p class="stat-value" id="statRevenue">–</p><p class="stat-label">Revenue (30d)</p>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="chart-card">
+            <div class="chart-head">
+              <h2 class="section-h">Activity — last 14 days</h2>
+              <div class="chart-legend">
+                <span><i class="legend-dot" style="background:var(--gold);"></i>Signups</span>
+                <span><i class="legend-dot" style="background:var(--blue);"></i>Tasks done</span>
+              </div>
+            </div>
+            <div id="activityChart"></div>
+          </div>
+          <div class="section-card">
+            <div class="section-header"><span class="section-title">Recent Activity</span></div>
+            <div style="padding:8px 20px 4px;max-height:280px;overflow-y:auto;" id="recentFeed"></div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">Quick Actions</span>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;padding:18px 20px;">
+            <button class="btn btn-secondary" onclick="goPage('payouts')">Review pending payouts</button>
+            <button class="btn btn-secondary" onclick="goPage('tasks')">Review task submissions</button>
+            <button class="btn btn-secondary" onclick="goPage('broadcast')">Send a broadcast</button>
+            <button class="btn btn-secondary" onclick="openCreateCampaignModal()">Create a campaign</button>
+            <button class="btn btn-secondary" onclick="exportAllCSV()">Export platform report</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= PAYOUTS ================= -->
+      <section class="page" id="page-payouts">
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">Pending Payouts</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm" onclick="exportCSV('payouts')">Export CSV</button>
+              <span class="section-count" id="payoutCount">0</span>
+            </div>
+          </div>
+          <div class="toolbar">
+            <div class="toolbar-search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="text" id="payoutSearch" aria-label="Search name, bank, account"></div>
+            <select class="select-filter" id="payoutFilter">
+              <option value="all">All statuses</option>
+              <option value="overdue">Overdue only</option>
+              <option value="fresh">Not overdue</option>
+            </select>
+            <select class="select-filter" id="payoutSort">
+              <option value="waiting_desc">Longest waiting</option>
+              <option value="amount_desc">Highest amount</option>
+              <option value="amount_asc">Lowest amount</option>
+            </select>
+          </div>
+          <div class="bulk-bar" id="payoutBulkBar">
+            <span id="payoutBulkCount">0 selected</span>
+            <button class="btn btn-approve btn-sm" onclick="bulkAction('payouts','approve')">Approve selected</button>
+            <button class="btn btn-reject btn-sm" onclick="bulkAction('payouts','reject')">Reject selected</button>
+          </div>
+          <div id="payoutList"><div class="list-item" style="opacity:0.5;"><p class="list-item-title">Loading…</p></div></div>
+          <div class="pagination" id="payoutPagination"></div>
+        </div>
+      </section>
+
+      <!-- ================= TASKS ================= -->
+      <section class="page" id="page-tasks">
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">Pending Task Reviews</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm" onclick="exportCSV('tasks')">Export CSV</button>
+              <span class="section-count" id="taskCount">0</span>
+            </div>
+          </div>
+          <div class="toolbar">
+            <div class="toolbar-search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="text" id="taskSearch" aria-label="Search task, brand, user"></div>
+            <select class="select-filter" id="taskFilter">
+              <option value="all">All submissions</option>
+              <option value="proof">With proof</option>
+              <option value="noproof">Missing proof</option>
+            </select>
+          </div>
+          <div class="bulk-bar" id="taskBulkBar">
+            <span id="taskBulkCount">0 selected</span>
+            <button class="btn btn-approve btn-sm" onclick="bulkAction('tasks','approve')">Approve selected</button>
+            <button class="btn btn-reject btn-sm" onclick="bulkAction('tasks','reject')">Reject selected</button>
+          </div>
+          <div id="taskReviewList"><div class="list-item" style="opacity:0.5;"><p class="list-item-title">Loading…</p></div></div>
+          <div class="pagination" id="taskPagination"></div>
+        </div>
+      </section>
+
+      <!-- ================= CAMPAIGNS ================= -->
+      <section class="page" id="page-campaigns">
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">Pending Campaign Approvals</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-primary btn-sm" onclick="openCreateCampaignModal()">+ New campaign</button>
+              <span class="section-count" id="campaignCount">0</span>
+            </div>
+          </div>
+          <div class="toolbar">
+            <div class="toolbar-search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="text" id="campaignSearch" aria-label="Search brand, advertiser"></div>
+            <select class="select-filter" id="campaignFilter">
+              <option value="all">All types</option>
+              <option value="post">Post</option>
+              <option value="follow">Follow</option>
+              <option value="repost">Repost</option>
+              <option value="video">Video</option>
+            </select>
+          </div>
+          <div id="campaignList"><div class="list-item" style="opacity:0.5;"><p class="list-item-title">Loading…</p></div></div>
+        </div>
+      </section>
+
+      <!-- ================= USERS ================= -->
+      <section class="page" id="page-users">
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">All Users</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm" onclick="exportCSV('users')">Export CSV</button>
+              <span class="section-count" id="userCount">0</span>
+            </div>
+          </div>
+          <div class="toolbar">
+            <div class="toolbar-search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="text" id="userSearch" aria-label="Search name, email, phone"></div>
+            <select class="select-filter" id="userFilter">
+              <option value="all">All statuses</option>
+              <option value="active">Active</option>
+              <option value="suspended">Suspended</option>
+              <option value="unverified">Unverified</option>
+            </select>
+            <select class="select-filter" id="userSort">
+              <option value="joined_desc">Newest first</option>
+              <option value="balance_desc">Highest balance</option>
+              <option value="name_asc">Name A–Z</option>
+            </select>
+          </div>
+          <div class="tbl-wrap">
+            <table class="tbl">
+              <thead><tr><th>User</th><th>Balance</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="userTableBody"><tr><td colspan="5" style="opacity:0.5;padding:20px;">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="userPagination"></div>
+        </div>
+      </section>
+
+      <!-- ================= BROADCAST ================= -->
+      <section class="page" id="page-broadcast">
+        <div class="two-col">
+          <div class="section-card">
+            <div class="section-header"><span class="section-title">Compose Broadcast</span></div>
+            <div class="modal-body" style="padding:20px;">
+              <div class="field">
+                <label>Audience</label>
+                <div class="segment" id="broadcastAudience">
+                  <button class="seg-btn active" data-val="all">All users</button>
+                  <button class="seg-btn" data-val="active">Active only</button>
+                  <button class="seg-btn" data-val="pending_payout">Pending payout</button>
+                  <button class="seg-btn" data-val="unverified">Unverified</button>
+                </div>
+              </div>
+              <div class="field">
+                <label>Channel</label>
+                <div class="segment" id="broadcastChannel">
+                  <button class="seg-btn active" data-val="push">Push notification</button>
+                  <button class="seg-btn" data-val="email">Email</button>
+                  <button class="seg-btn" data-val="sms">SMS</button>
+                </div>
+              </div>
+              <div class="field">
+                <label for="broadcastTitle">Title</label>
+                <input type="text" id="broadcastTitle">
+              </div>
+              <div class="field">
+                <label for="broadcastBody">Message</label>
+                <textarea id="broadcastBody"></textarea>
+              </div>
+              <button class="btn btn-primary" style="align-self:flex-start;" onclick="sendBroadcast()">Send broadcast</button>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-header"><span class="section-title">Broadcast History</span></div>
+            <div id="broadcastHistory"><div class="empty-state"><div class="empty-state-title">No broadcasts sent yet</div><div class="empty-state-sub">Sent broadcasts will appear here</div></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ACTIVITY LOG ================= -->
+      <section class="page" id="page-activity">
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">Admin Activity Log</span>
+            <span class="section-count" id="activityCount">0</span>
+          </div>
+          <div style="padding:8px 20px 4px;" id="activityLogList"></div>
+        </div>
+      </section>
+
+      <!-- ================= SETTINGS ================= -->
+      <section class="page" id="page-settings">
+        <div class="section-card">
+          <div class="section-header"><span class="section-title">Payout Settings</span></div>
+          <div style="padding:6px 20px 4px;">
+            <div class="toggle-row">
+              <div><div class="toggle-row-label">Require KYC before payout</div><div class="toggle-row-sub">Users must verify identity before requesting a withdrawal</div></div>
+              <label class="switch"><input type="checkbox" id="settingKyc"><span class="switch-track"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-row-label">Auto-approve small payouts</div><div class="toggle-row-sub">Skip manual review for payouts under the threshold below</div></div>
+              <label class="switch"><input type="checkbox" id="settingAutoApprove"><span class="switch-track"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div style="flex:1;">
+                <div class="toggle-row-label">Minimum payout amount</div>
+                <div class="field-hint">Lowest amount a user can withdraw</div>
+              </div>
+              <input type="number" id="settingMinPayout" style="width:120px;background:var(--bg-main);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:8px 10px;font-family:var(--font-mono);font-size:0.8rem;">
+            </div>
+            <div class="toggle-row">
+              <div style="flex:1;">
+                <div class="toggle-row-label">Auto-approve threshold (₦)</div>
+                <div class="field-hint">Payouts below this amount skip manual review, if enabled above</div>
+              </div>
+              <input type="number" id="settingAutoThreshold" style="width:120px;background:var(--bg-main);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:8px 10px;font-family:var(--font-mono);font-size:0.8rem;">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header"><span class="section-title">Task Settings</span></div>
+          <div style="padding:6px 20px 4px;">
+            <div class="toggle-row">
+              <div><div class="toggle-row-label">Require proof upload</div><div class="toggle-row-sub">Users must upload a screenshot before a task can be reviewed</div></div>
+              <label class="switch"><input type="checkbox" id="settingProof"><span class="switch-track"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-row-label">Allow duplicate submissions</div><div class="toggle-row-sub">Let a user submit the same task more than once</div></div>
+              <label class="switch"><input type="checkbox" id="settingDupe"><span class="switch-track"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header"><span class="section-title">Platform</span></div>
+          <div style="padding:6px 20px 4px;">
+            <div class="toggle-row">
+              <div><div class="toggle-row-label">Maintenance mode</div><div class="toggle-row-sub">Temporarily block new logins while you make changes</div></div>
+              <label class="switch"><input type="checkbox" id="settingMaintenance"><span class="switch-track"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-row-label">New signups</div><div class="toggle-row-sub">Allow new users to register on the platform</div></div>
+              <label class="switch"><input type="checkbox" id="settingSignups"><span class="switch-track"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:10px;">
+          <button class="btn btn-ghost" onclick="loadSettings()">Discard changes</button>
+          <button class="btn btn-primary" onclick="saveSettings()">Save changes</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== Generic Modal ===== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="modalTitle">Title</span>
+      <button class="modal-close" onclick="closeModal()">
+        <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+/* ============================================================
+   STATE
+============================================================ */
+const $ = (sel, root) => (root||document).querySelector(sel);
+const $$ = (sel, root) => Array.from((root||document).querySelectorAll(sel));
+const fmt = new Intl.NumberFormat('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function esc(s){ const d=document.createElement('div'); d.textContent = s==null?'':String(s); return d.innerHTML; }
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function timeAgo(d){
+  const diff = (Date.now() - new Date(d).getTime())/1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return Math.floor(diff/60)+'m ago';
+  if (diff < 86400) return Math.floor(diff/3600)+'h ago';
+  return Math.floor(diff/86400)+'d ago';
+}
+
+const state = {
+  payouts: [], tasks: [], campaigns: [], users: [],
+  selected: { payouts: new Set(), tasks: new Set() },
+  page: { payouts: 1, tasks: 1, users: 1 },
+  pageSize: 6,
+  activityLog: [],
+  broadcasts: [],
+  settings: {},
+  errors: { payouts: false, tasks: false, campaigns: false, users: false, stats: false, chart: false },
+};
+
+/* ============================================================
+   TOASTS
+============================================================ */
+function toast(msg, type='success'){
+  const stack = $('#toastStack');
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type==='success'?'':type);
+  const icons = {
+    success: '<path d="M20 6 9 17l-5-5"/>',
+    error: '<path d="M18 6 6 18M6 6l12 12"/>',
+    info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+  };
+  el.innerHTML = `<svg class="icon" viewBox="0 0 24 24" style="color:var(--${type==='success'?'green':type==='error'?'red':'blue'})">${icons[type]}</svg><span>${esc(msg)}</span>`;
+  stack.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateX(16px)'; el.style.transition='all .18s ease'; setTimeout(()=>el.remove(),180); }, 3200);
+}
+
+/* ============================================================
+   ACTIVITY LOG
+============================================================ */
+function logActivity(text, kind='info'){
+  state.activityLog.unshift({ id: uid(), text, kind, ts: new Date().toISOString() });
+  renderActivityLog();
+  renderRecentFeed();
+}
+function renderActivityLog(){
+  const wrap = $('#activityLogList');
+  $('#activityCount').textContent = state.activityLog.length;
+  if (!state.activityLog.length){
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-state-title">No activity yet</div><div class="empty-state-sub">Actions you take will be recorded here</div></div>`;
+    return;
+  }
+  const colors = { success:'var(--green)', error:'var(--red)', info:'var(--blue)', warning:'var(--gold)' };
+  wrap.innerHTML = state.activityLog.map(a => `
+    <div class="feed-item">
+      <span class="feed-dot" style="background:${colors[a.kind]||'var(--blue)'}"></span>
+      <div>
+        <div class="feed-text">${a.text}</div>
+        <div class="feed-time">${timeAgo(a.ts)}</div>
+      </div>
+    </div>`).join('');
+}
+function renderRecentFeed(){
+  const wrap = $('#recentFeed');
+  if (!state.activityLog.length){
+    wrap.innerHTML = `<div class="empty-state" style="padding:24px 0;"><div class="empty-state-sub">No recent activity</div></div>`;
+    return;
+  }
+  const colors = { success:'var(--green)', error:'var(--red)', info:'var(--blue)', warning:'var(--gold)' };
+  wrap.innerHTML = state.activityLog.slice(0,8).map(a => `
+    <div class="feed-item">
+      <span class="feed-dot" style="background:${colors[a.kind]||'var(--blue)'}"></span>
+      <div><div class="feed-text">${a.text}</div><div class="feed-time">${timeAgo(a.ts)}</div></div>
+    </div>`).join('');
+}
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+const pageTitles = { overview:'Dashboard', payouts:'Payouts', tasks:'Task Reviews', campaigns:'Campaigns', users:'Users', broadcast:'Broadcast', activity:'Activity Log', settings:'Settings' };
+function goPage(name){
+  $$('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === name));
+  $$('.page').forEach(p => p.classList.toggle('active', p.id === 'page-'+name));
+  $('#pageTitle').textContent = pageTitles[name] || name;
+  $('#sidebar').classList.remove('open');
+  $('#sidebarOverlay').classList.remove('show');
+}
+$$('.nav-item').forEach(btn => btn.addEventListener('click', () => goPage(btn.dataset.page)));
+$('#menuToggle').addEventListener('click', () => { $('#sidebar').classList.add('open'); $('#sidebarOverlay').classList.add('show'); });
+$('#sidebarOverlay').addEventListener('click', () => { $('#sidebar').classList.remove('open'); $('#sidebarOverlay').classList.remove('show'); });
+$('#refreshBtn').addEventListener('click', () => { loadAll(); toast('Data refreshed'); });
+$('#notifBtn').addEventListener('click', () => goPage('activity'));
+
+/* ============================================================
+   GLOBAL SEARCH -> routes to relevant page + presets its search box
+============================================================ */
+$('#globalSearch').addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  const q = e.target.value.trim();
+  if (!q) return;
+  goPage('users');
+  $('#userSearch').value = q;
+  renderUsers();
+});
+
+/* ============================================================
+   MODAL HELPERS
+============================================================ */
+function openModal({ title, body, footer, wide=false }){
+  $('#modal').classList.toggle('wide', wide);
+  $('#modalTitle').textContent = title;
+  $('#modalBody').innerHTML = body;
+  $('#modalFooter').innerHTML = '';
+  if (footer) footer.forEach(btn => $('#modalFooter').appendChild(btn));
+  $('#modalOverlay').classList.add('show');
+}
+function closeModal(){ $('#modalOverlay').classList.remove('show'); }
+$('#modalOverlay').addEventListener('click', (e) => { if (e.target.id === 'modalOverlay') closeModal(); });
+function makeBtn(label, cls, onClick){
+  const b = document.createElement('button');
+  b.className = 'btn ' + cls; b.textContent = label; b.onclick = onClick; return b;
+}
+function confirmModal(title, message, onConfirm, confirmLabel='Confirm', danger=false){
+  openModal({
+    title,
+    body: `<p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">${esc(message)}</p>`,
+    footer: [
+      makeBtn('Cancel','btn-ghost', closeModal),
+      makeBtn(confirmLabel, danger?'btn-reject':'btn-approve', () => { onConfirm(); closeModal(); }),
+    ],
+  });
+}
+function promptModal(title, label, onSubmit){
+  openModal({
+    title,
+    body: `<div class="field"><label>${esc(label)}</label><textarea id="promptInput"></textarea></div>`,
+    footer: [
+      makeBtn('Cancel','btn-ghost', closeModal),
+      makeBtn('Submit','btn-reject', () => {
+        const val = $('#promptInput').value.trim();
+        if (!val){ toast('A reason is required','error'); return; }
+        onSubmit(val); closeModal();
+      }),
+    ],
+  });
+}
+
+/* ============================================================
+   API HELPER — talks to the real backend only. No mock fallback,
+   no pretending a failed request succeeded.
+============================================================ */
+async function apiGet(url){
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Request failed (' + res.status + ')');
+    return { ok: true, data: await res.json() };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+async function apiPost(url, body){
+  try {
+    const res = await fetch(url, { method:'POST', headers: body ? {'Content-Type':'application/json'} : undefined, body: body ? JSON.stringify(body) : undefined });
+    return res.ok;
+  } catch (_) {
+    return false;
+  }
+}
+
+/* ============================================================
+   LOAD DATA
+============================================================ */
+function setTrend(id, pct){
+  const el = $('#'+id);
+  if (pct === null || pct === undefined){ el.textContent = '—'; el.className = 'stat-trend'; return; }
+  el.textContent = (pct>=0?'+':'') + pct.toFixed(1) + '%';
+  el.className = 'stat-trend ' + (pct>=0?'up':'down');
+}
+async function loadStats(){
+  const res = await apiGet('/api/admin/stats');
+  state.errors.stats = !res.ok;
+  const s = res.ok ? res.data : {};
+  $('#statUsers').textContent = s.totalUsers != null ? fmtCompact(s.totalUsers) : '—';
+  $('#statPosts').textContent = s.totalPosts != null ? fmtCompact(s.totalPosts) : '—';
+  const pendingTotal = state.payouts.reduce((a,p)=>a+(p.amount||0),0);
+  $('#statPayouts').textContent = '₦' + fmtCompact(s.pendingPayoutTotal != null ? s.pendingPayoutTotal : pendingTotal);
+  $('#statRevenue').textContent = s.revenue30d != null ? '₦' + fmtCompact(s.revenue30d) : '—';
+  setTrend('trendUsers', s.userTrendPct);
+  setTrend('trendPosts', s.postTrendPct);
+  setTrend('trendRevenue', s.revenueTrendPct);
+  $('#trendPayouts').textContent = state.payouts.length + ' pending';
+  $('#navBadgePayouts').textContent = state.payouts.length;
+  $('#navBadgePayouts').classList.toggle('zero', state.payouts.length===0);
+  $('#navBadgeTasks').textContent = state.tasks.length;
+  $('#navBadgeTasks').classList.toggle('zero', state.tasks.length===0);
+  $('#navBadgeCampaigns').textContent = state.campaigns.length;
+  $('#navBadgeCampaigns').classList.toggle('zero', state.campaigns.length===0);
+}
+function fmtCompact(n){
+  if (n>=1e6) return (n/1e6).toFixed(1)+'M';
+  if (n>=1e3) return (n/1e3).toFixed(1)+'K';
+  return String(n);
+}
+
+async function loadPayouts(){
+  const res = await apiGet('/api/admin/payouts/pending');
+  state.errors.payouts = !res.ok;
+  state.payouts = res.ok ? res.data : [];
+  renderPayouts();
+}
+async function loadTasks(){
+  const res = await apiGet('/api/admin/tasks/pending');
+  state.errors.tasks = !res.ok;
+  state.tasks = res.ok ? res.data : [];
+  renderTasks();
+}
+async function loadCampaigns(){
+  const res = await apiGet('/api/admin/campaigns/pending');
+  state.errors.campaigns = !res.ok;
+  state.campaigns = res.ok ? res.data : [];
+  renderCampaigns();
+}
+async function loadUsers(){
+  const res = await apiGet('/api/admin/users');
+  state.errors.users = !res.ok;
+  state.users = res.ok ? res.data : [];
+  renderUsers();
+}
+async function loadAdminProfile(){
+  const res = await apiGet('/api/admin/me');
+  if (res.ok && res.data){
+    $('#adminName').textContent = res.data.name || '—';
+    $('#adminEmail').textContent = res.data.email || '';
+    $('#adminAvatar').textContent = res.data.name ? initials(res.data.name) : '–';
+  } else {
+    $('#adminName').textContent = '—';
+    $('#adminEmail').textContent = '';
+    $('#adminAvatar').textContent = '–';
+  }
+}
+async function loadSettings(){
+  const res = await apiGet('/api/admin/settings');
+  const s = res.ok ? res.data : {};
+  state.settings = s;
+  $('#settingKyc').checked = !!s.kyc;
+  $('#settingAutoApprove').checked = !!s.autoApprove;
+  $('#settingMinPayout').value = s.minPayout != null ? s.minPayout : '';
+  $('#settingAutoThreshold').value = s.autoThreshold != null ? s.autoThreshold : '';
+  $('#settingProof').checked = !!s.proof;
+  $('#settingDupe').checked = !!s.dupe;
+  $('#settingMaintenance').checked = !!s.maintenance;
+  $('#settingSignups').checked = !!s.signups;
+  if (!res.ok) toast('Could not load current settings from the server', 'error');
+}
+async function saveSettings(){
+  const payload = {
+    kyc: $('#settingKyc').checked, autoApprove: $('#settingAutoApprove').checked,
+    minPayout: Number($('#settingMinPayout').value) || 0, autoThreshold: Number($('#settingAutoThreshold').value) || 0,
+    proof: $('#settingProof').checked, dupe: $('#settingDupe').checked,
+    maintenance: $('#settingMaintenance').checked, signups: $('#settingSignups').checked,
+  };
+  const ok = await apiPost('/api/admin/settings', payload);
+  if (!ok){ toast('Could not save settings — check your connection', 'error'); return; }
+  state.settings = payload;
+  toast('Settings saved');
+  logActivity('Updated <b>platform settings</b>', 'success');
+}
+
+async function loadChart(){
+  const res = await apiGet('/api/admin/analytics/activity');
+  state.errors.chart = !res.ok;
+  if (res.ok && Array.isArray(res.data) && res.data.length){
+    renderChart(res.data);
+  } else {
+    $('#activityChart').innerHTML = `<div class="empty-state" style="padding:34px 0;"><div class="empty-state-sub">${res.ok ? 'No analytics data available yet' : 'Could not load analytics data'}</div></div>`;
+  }
+}
+function renderChart(days){
+  const w = 640, h = 160, pad = 6;
+  const maxV = Math.max(1, ...days.map(d=>Math.max(d.signups||0,d.tasksDone||0))) * 1.15;
+  const bw = (w - pad*2) / days.length;
+  const barsGold = days.map((d,i) => {
+    const bh = ((d.signups||0)/maxV)*(h-24);
+    const x = pad + i*bw;
+    return `<rect x="${x+bw*0.12}" y="${h-bh-4}" width="${bw*0.32}" height="${bh}" rx="2" fill="var(--gold)" opacity="0.9"/>`;
+  }).join('');
+  const barsBlue = days.map((d,i) => {
+    const bh = ((d.tasksDone||0)/maxV)*(h-24);
+    const x = pad + i*bw;
+    return `<rect x="${x+bw*0.52}" y="${h-bh-4}" width="${bw*0.32}" height="${bh}" rx="2" fill="var(--blue)" opacity="0.85"/>`;
+  }).join('');
+  $('#activityChart').innerHTML = `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;">
+    <line x1="0" y1="${h-4}" x2="${w}" y2="${h-4}" stroke="var(--border-subtle)" stroke-width="1"/>
+    ${barsGold}${barsBlue}
+  </svg>`;
+}
+
+async function loadAll(){
+  await Promise.all([loadPayouts(), loadTasks(), loadCampaigns(), loadUsers(), loadAdminProfile()]);
+  await loadStats();
+  await loadChart();
+  renderRecentFeed();
+}
+
+/* ============================================================
+   RENDER: PAYOUTS
+============================================================ */
+function filterSortPayouts(){
+  let list = [...state.payouts];
+  const q = $('#payoutSearch').value.trim().toLowerCase();
+  if (q) list = list.filter(p => [p.name,p.bank_name,p.account_number,p.account_name,p.email].join(' ').toLowerCase().includes(q));
+  const f = $('#payoutFilter').value;
+  if (f==='overdue') list = list.filter(p=>p.isOverdue);
+  if (f==='fresh') list = list.filter(p=>!p.isOverdue);
+  const sort = $('#payoutSort').value;
+  if (sort==='waiting_desc') list.sort((a,b)=>b.hoursWaiting-a.hoursWaiting);
+  if (sort==='amount_desc') list.sort((a,b)=>b.amount-a.amount);
+  if (sort==='amount_asc') list.sort((a,b)=>a.amount-b.amount);
+  return list;
+}
+function renderPayouts(){
+  const list = filterSortPayouts();
+  $('#payoutCount').textContent = state.payouts.length;
+  const pageSize = state.pageSize;
+  const totalPages = Math.max(1, Math.ceil(list.length/pageSize));
+  state.page.payouts = Math.min(state.page.payouts, totalPages);
+  const pageItems = list.slice((state.page.payouts-1)*pageSize, state.page.payouts*pageSize);
+
+  if (!list.length){
+    $('#payoutList').innerHTML = state.errors.payouts
+      ? `<div class="empty-state"><svg class="icon" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg><div class="empty-state-title">Could not load payouts</div><div class="empty-state-sub">Check your connection and try refreshing</div></div>`
+      : `<div class="empty-state"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="2"/></svg><div class="empty-state-title">No pending payouts</div><div class="empty-state-sub">There's nothing to review right now</div></div>`;
+  } else {
+    $('#payoutList').innerHTML = pageItems.map(p => `
+      <div class="list-item">
+        <input type="checkbox" class="chk" data-id="${p.id}" ${state.selected.payouts.has(p.id)?'checked':''} onchange="toggleSelect('payouts','${p.id}',this.checked)">
+        <div class="list-item-info">
+          <p class="list-item-title">${esc(p.name)} · ${esc(p.bank_name)} · ${esc(p.account_number)} · ${esc(p.account_name)}</p>
+          <p class="list-item-meta">${esc(p.email)} · ${esc(p.phone)} · ${p.hoursWaiting}h waiting ${p.isOverdue?'<span class="badge badge-danger">OVERDUE</span>':''}</p>
+        </div>
+        <p class="list-item-amount">₦${fmt.format(p.amount)}</p>
+        <button class="btn btn-approve btn-sm" onclick="approvePayout('${p.id}')">Approve</button>
+        <button class="btn btn-reject btn-sm" onclick="rejectPayout('${p.id}')">Reject</button>
+      </div>`).join('');
+  }
+  $('#payoutPagination').innerHTML = paginationHTML('payouts', state.page.payouts, totalPages, list.length);
+  updateBulkBar('payouts');
+}
+function approvePayout(id){
+  const p = state.payouts.find(x=>x.id===id);
+  confirmModal('Approve payout', `Approve ₦${fmt.format(p.amount)} payout to ${p.name} (${p.bank_name} · ${p.account_number})?`, async () => {
+    const ok = await apiPost(`/api/admin/payouts/${id}/approve`);
+    if (!ok){ toast('Could not approve payout — check your connection', 'error'); return; }
+    state.payouts = state.payouts.filter(x=>x.id!==id);
+    state.selected.payouts.delete(id);
+    renderPayouts(); loadStats();
+    toast(`Payout to ${p.name} approved`);
+    logActivity(`Approved payout of <b>₦${fmt.format(p.amount)}</b> to <b>${esc(p.name)}</b>`, 'success');
+  }, 'Approve');
+}
+function rejectPayout(id){
+  const p = state.payouts.find(x=>x.id===id);
+  promptModal('Reject payout', `Reason for rejecting ${p.name}'s ₦${fmt.format(p.amount)} payout:`, async (reason) => {
+    const ok = await apiPost(`/api/admin/payouts/${id}/reject`, { reason });
+    if (!ok){ toast('Could not reject payout — check your connection', 'error'); return; }
+    state.payouts = state.payouts.filter(x=>x.id!==id);
+    state.selected.payouts.delete(id);
+    renderPayouts(); loadStats();
+    toast(`Payout to ${p.name} rejected`, 'error');
+    logActivity(`Rejected payout to <b>${esc(p.name)}</b> — ${esc(reason)}`, 'error');
+  });
+}
+
+/* ============================================================
+   RENDER: TASKS
+============================================================ */
+function filterTasks(){
+  let list = [...state.tasks];
+  const q = $('#taskSearch').value.trim().toLowerCase();
+  if (q) list = list.filter(t => [t.task_title,t.brand,t.user_name,t.email].join(' ').toLowerCase().includes(q));
+  const f = $('#taskFilter').value;
+  if (f==='proof') list = list.filter(t=>t.proof_url);
+  if (f==='noproof') list = list.filter(t=>!t.proof_url);
+  return list;
+}
+function renderTasks(){
+  const list = filterTasks();
+  $('#taskCount').textContent = state.tasks.length;
+  const pageSize = state.pageSize;
+  const totalPages = Math.max(1, Math.ceil(list.length/pageSize));
+  state.page.tasks = Math.min(state.page.tasks, totalPages);
+  const pageItems = list.slice((state.page.tasks-1)*pageSize, state.page.tasks*pageSize);
+
+  if (!list.length){
+    $('#taskReviewList').innerHTML = state.errors.tasks
+      ? `<div class="empty-state"><svg class="icon" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg><div class="empty-state-title">Could not load task submissions</div><div class="empty-state-sub">Check your connection and try refreshing</div></div>`
+      : `<div class="empty-state"><svg class="icon" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg><div class="empty-state-title">No pending submissions</div><div class="empty-state-sub">There's nothing to review right now</div></div>`;
+  } else {
+    $('#taskReviewList').innerHTML = pageItems.map(t => `
+      <div class="list-item">
+        <input type="checkbox" class="chk" data-id="${t.id}" ${state.selected.tasks.has(t.id)?'checked':''} onchange="toggleSelect('tasks','${t.id}',this.checked)">
+        <div class="list-item-info">
+          <p class="list-item-title">${esc(t.task_title)} · ${esc(t.brand)}</p>
+          <p class="list-item-meta">${esc(t.user_name)} · ${esc(t.email)} · Submitted ${new Date(t.completed_at).toLocaleString()}</p>
+          ${t.proof_url ? `<a href="${t.proof_url}" target="_blank" class="btn btn-sm" style="background:var(--blue);color:#fff;margin-top:6px;">View Proof</a>` : '<span class="badge badge-warning" style="margin-top:6px;display:inline-flex;">No proof uploaded</span>'}
+        </div>
+        <p class="list-item-amount">₦${fmt.format(t.reward)}</p>
+        <button class="btn btn-approve btn-sm" onclick="approveTask('${t.id}')">Approve</button>
+        <button class="btn btn-reject btn-sm" onclick="rejectTask('${t.id}')">Reject</button>
+      </div>`).join('');
+  }
+  $('#taskPagination').innerHTML = paginationHTML('tasks', state.page.tasks, totalPages, list.length);
+  updateBulkBar('tasks');
+}
+function approveTask(id){
+  const t = state.tasks.find(x=>x.id===id);
+  confirmModal('Approve task', `Approve "${t.task_title}" by ${t.user_name} and credit ₦${fmt.format(t.reward)}?`, async () => {
+    const ok = await apiPost(`/api/admin/tasks/${id}/approve`);
+    if (!ok){ toast('Could not approve task — check your connection', 'error'); return; }
+    state.tasks = state.tasks.filter(x=>x.id!==id);
+    state.selected.tasks.delete(id);
+    renderTasks(); loadStats();
+    toast(`Task approved, ${t.user_name} credited`);
+    logActivity(`Approved task <b>${esc(t.task_title)}</b> for <b>${esc(t.user_name)}</b> (+₦${fmt.format(t.reward)})`, 'success');
+  }, 'Approve & credit');
+}
+function rejectTask(id){
+  const t = state.tasks.find(x=>x.id===id);
+  promptModal('Reject task', `Reason for rejecting ${t.user_name}'s submission:`, async (reason) => {
+    const ok = await apiPost(`/api/admin/tasks/${id}/reject`, { reason });
+    if (!ok){ toast('Could not reject task — check your connection', 'error'); return; }
+    state.tasks = state.tasks.filter(x=>x.id!==id);
+    state.selected.tasks.delete(id);
+    renderTasks(); loadStats();
+    toast('Task submission rejected', 'error');
+    logActivity(`Rejected task submission from <b>${esc(t.user_name)}</b> — ${esc(reason)}`, 'error');
+  });
+}
+
+/* ============================================================
+   RENDER: CAMPAIGNS
+============================================================ */
+function filterCampaigns(){
+  let list = [...state.campaigns];
+  const q = $('#campaignSearch').value.trim().toLowerCase();
+  if (q) list = list.filter(c => [c.brand,c.advertiser_name].join(' ').toLowerCase().includes(q));
+  const f = $('#campaignFilter').value;
+  if (f!=='all') list = list.filter(c=>c.type===f);
+  return list;
+}
+function renderCampaigns(){
+  const list = filterCampaigns();
+  $('#campaignCount').textContent = state.campaigns.length;
+  if (!list.length){
+    $('#campaignList').innerHTML = state.errors.campaigns
+      ? `<div class="empty-state"><svg class="icon" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg><div class="empty-state-title">Could not load campaigns</div><div class="empty-state-sub">Check your connection and try refreshing</div></div>`
+      : `<div class="empty-state"><svg class="icon" viewBox="0 0 24 24"><path d="M3 11v3a1 1 0 0 0 1 1h3l4 4V6L7 10H4a1 1 0 0 0-1 1z"/></svg><div class="empty-state-title">No pending campaigns</div><div class="empty-state-sub">Create a new one to get started</div></div>`;
+    return;
+  }
+  $('#campaignList').innerHTML = list.map(c => `
+    <div class="list-item">
+      <div class="list-item-info">
+        <p class="list-item-title">${esc(c.brand)} — ${esc(c.copy)} <span class="badge badge-info">${esc(c.type)}</span></p>
+        <p class="list-item-meta">By ${esc(c.advertiser_name)} · Budget: ₦${fmt.format(c.budget)}</p>
+      </div>
+      <button class="btn btn-approve btn-sm" onclick="approveCampaign('${c.id}')">Approve</button>
+      <button class="btn btn-reject btn-sm" onclick="rejectCampaign('${c.id}')">Reject</button>
+    </div>`).join('');
+}
+function approveCampaign(id){
+  const c = state.campaigns.find(x=>x.id===id);
+  confirmModal('Approve campaign', `Launch "${c.brand}" campaign with a ₦${fmt.format(c.budget)} budget?`, async () => {
+    const ok = await apiPost(`/api/admin/campaigns/${id}/approve`);
+    if (!ok){ toast('Could not approve campaign — check your connection', 'error'); return; }
+    state.campaigns = state.campaigns.filter(x=>x.id!==id);
+    renderCampaigns(); loadStats();
+    toast(`${c.brand} campaign approved`);
+    logActivity(`Approved campaign <b>${esc(c.brand)}</b> (₦${fmt.format(c.budget)} budget)`, 'success');
+  }, 'Approve');
+}
+function rejectCampaign(id){
+  const c = state.campaigns.find(x=>x.id===id);
+  confirmModal('Reject campaign', `Reject the "${c.brand}" campaign submission?`, async () => {
+    const ok = await apiPost(`/api/admin/campaigns/${id}/reject`);
+    if (!ok){ toast('Could not reject campaign — check your connection', 'error'); return; }
+    state.campaigns = state.campaigns.filter(x=>x.id!==id);
+    renderCampaigns(); loadStats();
+    toast(`${c.brand} campaign rejected`, 'error');
+    logActivity(`Rejected campaign <b>${esc(c.brand)}</b>`, 'error');
+  }, 'Reject', true);
+}
+function openCreateCampaignModal(){
+  openModal({
+    title: 'Create campaign', wide: true,
+    body: `
+      <div class="form-grid">
+        <div class="field"><label>Brand</label><input type="text" id="cBrand"></div>
+        <div class="field"><label>Advertiser</label><input type="text" id="cAdvertiser"></div>
+        <div class="field"><label>Type</label><select id="cType"><option value="post">Post</option><option value="follow">Follow</option><option value="repost">Repost</option><option value="video">Video</option></select></div>
+        <div class="field"><label>Budget (₦)</label><input type="number" id="cBudget"></div>
+        <div class="field full"><label>Instructions</label><textarea id="cCopy"></textarea></div>
+      </div>`,
+    footer: [
+      makeBtn('Cancel','btn-ghost', closeModal),
+      makeBtn('Create campaign','btn-primary', async () => {
+        const brand = $('#cBrand').value.trim(), advertiser = $('#cAdvertiser').value.trim(), copy = $('#cCopy').value.trim();
+        const budget = Number($('#cBudget').value)||0, type = $('#cType').value;
+        if (!brand || !copy || !budget){ toast('Fill in brand, instructions and budget','error'); return; }
+        const payload = { brand, advertiser_name: advertiser||brand, copy, budget, type };
+        const ok = await apiPost('/api/admin/campaigns', payload);
+        if (!ok){ toast('Could not create campaign — check your connection', 'error'); return; }
+        await loadCampaigns(); loadStats();
+        toast('Campaign created and queued for approval');
+        logActivity(`Created new campaign <b>${esc(brand)}</b>`, 'info');
+        closeModal();
+      }),
+    ],
+  });
+}
+
+/* ============================================================
+   RENDER: USERS
+============================================================ */
+function filterSortUsers(){
+  let list = [...state.users];
+  const q = $('#userSearch').value.trim().toLowerCase();
+  if (q) list = list.filter(u => [u.name,u.email,u.phone].join(' ').toLowerCase().includes(q));
+  const f = $('#userFilter').value;
+  if (f!=='all') list = list.filter(u=>u.status===f);
+  const sort = $('#userSort').value;
+  if (sort==='joined_desc') list.sort((a,b)=> new Date(b.joined)-new Date(a.joined));
+  if (sort==='balance_desc') list.sort((a,b)=>b.balance-a.balance);
+  if (sort==='name_asc') list.sort((a,b)=>a.name.localeCompare(b.name));
+  return list;
+}
+function statusBadge(status){
+  if (status==='active') return `<span class="badge badge-success">ACTIVE</span>`;
+  if (status==='suspended') return `<span class="badge badge-danger">SUSPENDED</span>`;
+  return `<span class="badge badge-warning">UNVERIFIED</span>`;
+}
+function initials(name){ return name.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase(); }
+function renderUsers(){
+  const list = filterSortUsers();
+  $('#userCount').textContent = state.users.length;
+  const pageSize = state.pageSize;
+  const totalPages = Math.max(1, Math.ceil(list.length/pageSize));
+  state.page.users = Math.min(state.page.users, totalPages);
+  const pageItems = list.slice((state.page.users-1)*pageSize, state.page.users*pageSize);
+
+  if (!list.length){
+    $('#userTableBody').innerHTML = state.errors.users
+      ? `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-title">Could not load users</div><div class="empty-state-sub">Check your connection and try refreshing</div></div></td></tr>`
+      : `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-title">No users found</div><div class="empty-state-sub">Try a different search or filter</div></div></td></tr>`;
+  } else {
+    $('#userTableBody').innerHTML = pageItems.map(u => `
+      <tr>
+        <td><div class="user-cell"><div class="avatar-sm">${initials(u.name)}</div><div><div class="name-strong">${esc(u.name)}</div><div class="sub-mono">${esc(u.email)}</div></div></div></td>
+        <td class="sub-mono" style="color:var(--gold);font-weight:600;">₦${fmt.format(u.balance)}</td>
+        <td class="sub-mono">${new Date(u.joined).toLocaleDateString()}</td>
+        <td>${statusBadge(u.status)}</td>
+        <td>
+          <button class="btn btn-ghost btn-sm" onclick="viewUser('${u.id}')">View</button>
+          ${u.status==='suspended'
+            ? `<button class="btn btn-approve btn-sm" onclick="toggleSuspend('${u.id}')">Reactivate</button>`
+            : `<button class="btn btn-reject btn-sm" onclick="toggleSuspend('${u.id}')">Suspend</button>`}
+        </td>
+      </tr>`).join('');
+  }
+  $('#userPagination').innerHTML = paginationHTML('users', state.page.users, totalPages, list.length);
+}
+function viewUser(id){
+  const u = state.users.find(x=>x.id===id);
+  openModal({
+    title: u.name,
+    body: `
+      <div class="detail-row"><span>Email</span><span>${esc(u.email)}</span></div>
+      <div class="detail-row"><span>Phone</span><span>${esc(u.phone)}</span></div>
+      <div class="detail-row"><span>Status</span><span>${statusBadge(u.status)}</span></div>
+      <div class="detail-row"><span>Balance</span><span>₦${fmt.format(u.balance)}</span></div>
+      <div class="detail-row"><span>Tasks completed</span><span>${u.tasksCompleted}</span></div>
+      <div class="detail-row"><span>Joined</span><span>${new Date(u.joined).toLocaleDateString()}</span></div>
+      <div class="field" style="margin-top:6px;">
+        <label>Adjust balance (₦, use negative to deduct)</label>
+        <input type="number" id="balanceAdjust">
+      </div>`,
+    footer: [
+      makeBtn('Close','btn-ghost', closeModal),
+      makeBtn('Apply adjustment','btn-primary', async () => {
+        const delta = Number($('#balanceAdjust').value);
+        if (!delta){ toast('Enter a non-zero amount','error'); return; }
+        const ok = await apiPost(`/api/admin/users/${id}/balance`, { delta });
+        if (!ok){ toast('Could not update balance — check your connection', 'error'); return; }
+        u.balance += delta;
+        renderUsers();
+        toast(`Balance ${delta>0?'credited':'debited'} ₦${fmt.format(Math.abs(delta))}`);
+        logActivity(`${delta>0?'Credited':'Debited'} ₦${fmt.format(Math.abs(delta))} ${delta>0?'to':'from'} <b>${esc(u.name)}</b>`, 'info');
+        closeModal();
+      }),
+    ],
+  });
+}
+function toggleSuspend(id){
+  const u = state.users.find(x=>x.id===id);
+  const suspending = u.status !== 'suspended';
+  confirmModal(
+    suspending ? 'Suspend user' : 'Reactivate user',
+    suspending ? `Suspend ${u.name}'s account? They won't be able to log in or request payouts.` : `Reactivate ${u.name}'s account?`,
+    async () => {
+      const ok = await apiPost(`/api/admin/users/${id}/${suspending?'suspend':'reactivate'}`);
+      if (!ok){ toast('Could not update user status — check your connection', 'error'); return; }
+      u.status = suspending ? 'suspended' : 'active';
+      renderUsers();
+      toast(`${u.name} ${suspending?'suspended':'reactivated'}`, suspending?'error':'success');
+      logActivity(`${suspending?'Suspended':'Reactivated'} user <b>${esc(u.name)}</b>`, suspending?'error':'success');
+    },
+    suspending ? 'Suspend' : 'Reactivate',
+    suspending
+  );
+}
+
+/* ============================================================
+   SELECTION / BULK ACTIONS
+============================================================ */
+function toggleSelect(kind, id, checked){
+  if (checked) state.selected[kind].add(id); else state.selected[kind].delete(id);
+  updateBulkBar(kind);
+}
+function updateBulkBar(kind){
+  const count = state.selected[kind].size;
+  const bar = $('#'+kind+'BulkBar');
+  const label = $('#'+kind+'BulkCount');
+  if (!bar) return;
+  bar.classList.toggle('show', count>0);
+  if (label) label.textContent = count + ' selected';
+}
+function bulkAction(kind, action){
+  const ids = Array.from(state.selected[kind]);
+  if (!ids.length) return;
+  const label = kind === 'payouts' ? 'payouts' : 'task submissions';
+  confirmModal(
+    `${action==='approve'?'Approve':'Reject'} ${ids.length} ${label}`,
+    `This will ${action} all ${ids.length} selected ${label}. Continue?`,
+    async () => {
+      const succeeded = [];
+      const failed = [];
+      for (const id of ids){
+        const ok = await apiPost(`/api/admin/${kind}/${id}/${action}`);
+        (ok ? succeeded : failed).push(id);
+      }
+      state[kind] = state[kind].filter(x => !succeeded.includes(x.id));
+      succeeded.forEach(id => state.selected[kind].delete(id));
+      if (kind==='payouts') renderPayouts(); else renderTasks();
+      loadStats();
+      if (succeeded.length) {
+        toast(`${succeeded.length} ${label} ${action==='approve'?'approved':'rejected'}`, action==='approve'?'success':'error');
+        logActivity(`Bulk ${action}d <b>${succeeded.length}</b> ${label}`, action==='approve'?'success':'error');
+      }
+      if (failed.length) toast(`${failed.length} ${label} could not be updated — check your connection`, 'error');
+    },
+    action==='approve' ? 'Approve all' : 'Reject all',
+    action==='reject'
+  );
+}
+
+/* ============================================================
+   PAGINATION
+============================================================ */
+function paginationHTML(kind, page, totalPages, total){
+  if (total === 0) return '';
+  return `
+    <span>Page ${page} of ${totalPages} · ${total} total</span>
+    <div class="pagination-btns">
+      <button class="btn btn-ghost btn-sm" ${page<=1?'disabled':''} onclick="changePage('${kind}',-1)">Prev</button>
+      <button class="btn btn-ghost btn-sm" ${page>=totalPages?'disabled':''} onclick="changePage('${kind}',1)">Next</button>
+    </div>`;
+}
+function changePage(kind, delta){
+  state.page[kind] += delta;
+  if (kind==='payouts') renderPayouts();
+  if (kind==='tasks') renderTasks();
+  if (kind==='users') renderUsers();
+}
+
+/* ============================================================
+   CSV EXPORT
+============================================================ */
+function downloadCSV(filename, rows){
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\\n');
+  const blob = new Blob([csv], { type:'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+function exportCSV(kind){
+  if (kind==='payouts'){
+    downloadCSV('payouts.csv', [['Name','Email','Bank','Account Number','Amount','Hours Waiting','Overdue'], ...state.payouts.map(p=>[p.name,p.email,p.bank_name,p.account_number,p.amount,p.hoursWaiting,p.isOverdue])]);
+  } else if (kind==='tasks'){
+    downloadCSV('tasks.csv', [['Task','Brand','User','Email','Reward','Submitted'], ...state.tasks.map(t=>[t.task_title,t.brand,t.user_name,t.email,t.reward,t.completed_at])]);
+  } else if (kind==='users'){
+    downloadCSV('users.csv', [['Name','Email','Phone','Balance','Status','Joined'], ...state.users.map(u=>[u.name,u.email,u.phone,u.balance,u.status,u.joined])]);
+  }
+  toast(kind.charAt(0).toUpperCase()+kind.slice(1)+' exported');
+  logActivity(`Exported <b>${kind}</b> as CSV`, 'info');
+}
+function exportAllCSV(){
+  exportCSV('payouts'); exportCSV('tasks'); exportCSV('users');
+}
+
+/* ============================================================
+   BROADCAST
+============================================================ */
+$$('#broadcastAudience .seg-btn').forEach(b => b.addEventListener('click', () => { $$('#broadcastAudience .seg-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); }));
+$$('#broadcastChannel .seg-btn').forEach(b => b.addEventListener('click', () => { $$('#broadcastChannel .seg-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); }));
+async function sendBroadcast(){
+  const title = $('#broadcastTitle').value.trim();
+  const body = $('#broadcastBody').value.trim();
+  const audience = $('#broadcastAudience .seg-btn.active').dataset.val;
+  const channel = $('#broadcastChannel .seg-btn.active').dataset.val;
+  if (!title || !body){ toast('Add a title and message before sending','error'); return; }
+  const ok = await apiPost('/api/admin/broadcast', { title, body, audience, channel });
+  if (!ok){ toast('Could not send broadcast — check your connection', 'error'); return; }
+  state.broadcasts.unshift({ id: uid(), title, body, audience, channel, ts: new Date().toISOString() });
+  renderBroadcastHistory();
+  toast('Broadcast sent');
+  logActivity(`Sent <b>${channel}</b> broadcast "${esc(title)}" to <b>${audience.replace('_',' ')}</b>`, 'success');
+  $('#broadcastTitle').value = ''; $('#broadcastBody').value = '';
+}
+function renderBroadcastHistory(){
+  const wrap = $('#broadcastHistory');
+  if (!state.broadcasts.length){
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-state-title">No broadcasts sent yet</div><div class="empty-state-sub">Sent broadcasts will appear here</div></div>`;
+    return;
+  }
+  wrap.innerHTML = state.broadcasts.map(b => `
+    <div class="list-item">
+      <div class="list-item-info">
+        <p class="list-item-title">${esc(b.title)} <span class="badge badge-info">${esc(b.channel)}</span></p>
+        <p class="list-item-meta">${esc(b.body)}</p>
+        <p class="list-item-meta">To: ${b.audience.replace('_',' ')} · ${timeAgo(b.ts)}</p>
+      </div>
+    </div>`).join('');
+}
+
+/* ============================================================
+   LIVE FILTER LISTENERS
+============================================================ */
+['payoutSearch','payoutFilter','payoutSort'].forEach(id => $('#'+id).addEventListener('input', () => { state.page.payouts=1; renderPayouts(); }));
+['taskSearch','taskFilter'].forEach(id => $('#'+id).addEventListener('input', () => { state.page.tasks=1; renderTasks(); }));
+['campaignSearch','campaignFilter'].forEach(id => $('#'+id).addEventListener('input', renderCampaigns));
+['userSearch','userFilter','userSort'].forEach(id => $('#'+id).addEventListener('input', () => { state.page.users=1; renderUsers(); }));
+
+/* ============================================================
+   INIT
+============================================================ */
+(async function init(){
+  await loadSettings();
+  await loadAll();
+  logActivity('Admin console loaded', 'info');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>const API_BASE='https://kashi-atxm.onrender.com';</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sponsored — Kashi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-card: #1a1a1a; --border-subtle: rgba(255,255,255,0.06); --border-visible: rgba(255,255,255,0.10);
+            --text-primary: #e8e8e8; --text-secondary: #a0a0a0; --text-tertiary: #6b6b6b;
+            --gold: #f0b93f; --gold-hover: #f6c968; --gold-soft: rgba(240,185,63,0.12);
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 999px;
+            --font-display: 'Space Grotesk', sans-serif; --font-sans: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+        }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { font-family: var(--font-sans); background: var(--bg-card); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        svg { display: block; }
+        .icon { stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+
+        .sidebar-header { padding: 16px 16px 12px; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; }
+        .sidebar-header h3 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+        .sidebar-header .ad-disclaimer { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); margin-top: 2px; }
+
+        .ad-scroll-container { flex: 1; overflow: hidden; position: relative; }
+        .ad-scroll-track { display: flex; flex-direction: column; animation: scrollAds var(--scroll-speed, 120s) linear infinite; }
+        .ad-scroll-track:hover { animation-play-state: paused; }
+        .ad-scroll-track.paused { animation-play-state: paused; }
+
+        .ad-card { 
+            background: rgba(240,185,63,0.03); border: 1px solid rgba(240,185,63,0.1); 
+            border-radius: var(--radius-sm); padding: 10px 12px; margin: 4px 12px; flex-shrink: 0;
+            transition: background 0.15s ease, border-color 0.15s ease; 
+        }
+        .ad-card:hover { background: rgba(240,185,63,0.07); border-color: rgba(240,185,63,0.25); }
+        .ad-card-label { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 3px; }
+        .ad-card-brand { font-family: var(--font-display); font-size: 0.78rem; font-weight: 600; color: var(--gold); margin-bottom: 2px; }
+        .ad-card-copy { font-size: 0.7rem; color: var(--text-secondary); line-height: 1.3; margin-bottom: 8px; }
+        .ad-card-cta { display: inline-block; padding: 4px 12px; background: var(--gold); color: #000; border-radius: 999px; font-size: 0.65rem; font-weight: 600; text-decoration: none; transition: background 0.15s ease; }
+        .ad-card-cta:hover { background: var(--gold-hover); }
+
+        @keyframes scrollAds {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+
+        .sidebar-footer { padding: 10px 16px; border-top: 1px solid var(--border-subtle); flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
+        .ad-count { font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-tertiary); }
+        .ad-controls { display: flex; gap: 6px; }
+        .ad-ctrl-btn { background: var(--bg-card); border: 1px solid var(--border-visible); color: var(--text-tertiary); width: 24px; height: 24px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; transition: all 0.15s ease; }
+        .ad-ctrl-btn:hover { color: var(--text-primary); border-color: var(--border-visible); }
+        .ad-ctrl-btn.active { color: var(--gold); border-color: var(--gold); }
+    </style>
+</head>
+<body>
+    <div class="sidebar-header">
+        <h3>Sponsored</h3>
+        <p class="ad-disclaimer">Ads keep Kashi free</p>
+    </div>
+
+    <div class="ad-scroll-container" id="adScrollContainer">
+        <div class="ad-scroll-track" id="adScrollTrack"></div>
+    </div>
+
+    <div class="sidebar-footer">
+        <span class="ad-count" id="adCount"></span>
+        <div class="ad-controls">
+            <button class="ad-ctrl-btn" id="btnSlower" title="Slower">−</button>
+            <button class="ad-ctrl-btn active" id="btnPause" title="Pause">⏯</button>
+            <button class="ad-ctrl-btn" id="btnFaster" title="Faster">+</button>
+        </div>
+    </div>
+
+    <script>
+        const adTrack = document.getElementById('adScrollTrack');
+        const adCount = document.getElementById('adCount');
+        const adContainer = document.getElementById('adScrollContainer');
+
+        let allAds = [];
+        let speedLevel = 2;
+        const speeds = [240, 120, 60, 30, 15];
+        let isPaused = false;
+
+        async function fetchAds() {
+            try {
+                const res = await fetch(${API_BASE}/api/ads?placement=right-sidebar&limit=100');
+                if (!res.ok) throw new Error('Failed');
+                const ads = await res.json();
+
+                if (!ads || ads.length === 0) {
+                    adTrack.innerHTML = '';
+                    adCount.textContent = '';
+                    return;
+                }
+
+                allAds = ads;
+                renderAds();
+                adCount.textContent = `${ads.length} ads`;
+            } catch (err) {
+                adTrack.innerHTML = '';
+                adCount.textContent = '';
+            }
+        }
+
+        function renderAds() {
+            if (allAds.length === 0) return;
+
+            // Duplicate ads for seamless infinite scroll
+            const doubledAds = [...allAds, ...allAds];
+            
+            adTrack.innerHTML = doubledAds.map((ad, i) => `
+                <div class="ad-card">
+                    <p class="ad-card-label">Sponsored</p>
+                    <p class="ad-card-brand">${esc(ad.brand)}</p>
+                    <p class="ad-card-copy">${esc(ad.copy)}</p>
+                    <a href="${esc(ad.cta)}" class="ad-card-cta" target="_blank" rel="noopener">Learn More</a>
+                </div>
+            `).join('');
+
+            updateSpeed();
+        }
+
+        function updateSpeed() {
+            const speed = speeds[speedLevel] || 60;
+            adTrack.style.setProperty('--scroll-speed', speed + 's');
+        }
+
+        function esc(s) {
+            const d = document.createElement('div');
+            d.textContent = s || '';
+            return d.innerHTML;
+        }
+
+        // Controls
+        document.getElementById('btnPause').addEventListener('click', () => {
+            isPaused = !isPaused;
+            adTrack.classList.toggle('paused', isPaused);
+            document.getElementById('btnPause').classList.toggle('active', !isPaused);
+        });
+
+        document.getElementById('btnSlower').addEventListener('click', () => {
+            speedLevel = Math.min(speedLevel + 1, speeds.length - 1);
+            updateSpeed();
+        });
+
+        document.getElementById('btnFaster').addEventListener('click', () => {
+            speedLevel = Math.max(speedLevel - 1, 0);
+            updateSpeed();
+        });
+
+        // Hover to pause
+        adContainer.addEventListener('mouseenter', () => adTrack.style.animationPlayState = 'paused');
+        adContainer.addEventListener('mouseleave', () => {
+            if (!isPaused) adTrack.style.animationPlayState = 'running';
+        });
+
+        // Initial fetch
+        fetchAds();
+
+        // Refresh ads every 5 minutes
+        setInterval(fetchAds, 5 * 60 * 1000);
+    </script>
+</body>
+</html>

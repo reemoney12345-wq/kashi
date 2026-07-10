@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>const API_BASE='https://kashi-atxm.onrender.com';</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0f0f0f">
+    <title>Profile — Kashi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-main: #0f0f0f; --bg-card: #1a1a1a; --border-subtle: rgba(255,255,255,0.06); --border-visible: rgba(255,255,255,0.10);
+            --text-primary: #e8e8e8; --text-secondary: #a0a0a0; --text-tertiary: #6b6b6b;
+            --gold: #f0b93f; --gold-hover: #f6c968; --gold-soft: rgba(240,185,63,0.12); --green: #2fa84f; --red: #e04a3a; --blue: #4a90d9;
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 999px;
+            --font-display: 'Space Grotesk', sans-serif; --font-sans: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+        }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { font-family: var(--font-sans); background: var(--bg-main); color: var(--text-primary); height: 100%; overflow-y: auto; padding: 24px; }
+        body::-webkit-scrollbar { width: 4px; }
+        body::-webkit-scrollbar-track { background: transparent; }
+        body::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 4px; }
+        svg { display: block; }
+        .icon { stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+        h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; }
+        .page-wrapper { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+        .profile-header { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 8px 0 4px; }
+        .avatar-wrap { position: relative; width: 84px; height: 84px; margin-bottom: 16px; }
+        .avatar { width: 100%; height: 100%; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 1.9rem; font-weight: 600; color: #000; }
+        .avatar-edit { position: absolute; bottom: -2px; right: -2px; width: 30px; height: 30px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--bg-main); color: var(--text-primary); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .avatar-edit:hover { background: var(--bg-main); }
+        .avatar-edit .icon { width: 14px; height: 14px; }
+        .profile-name { font-size: 1.3rem; margin-bottom: 4px; }
+        .profile-bio { color: var(--text-secondary); font-size: 0.9rem; max-width: 360px; }
+        .profile-bio:empty::before { content: 'No bio yet'; color: var(--text-tertiary); font-style: italic; }
+        .premium-profile-badge { display: inline-block; font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.08em; background: var(--gold); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 700; margin-top: 6px; }
+
+        .profile-stats { display: flex; justify-content: center; gap: 28px; margin: 18px 0 20px; }
+        .profile-stat { text-align: center; }
+        .profile-stat-value { font-family: var(--font-mono); font-weight: 600; font-size: 1.05rem; }
+        .profile-stat-label { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary); margin-top: 2px; }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--font-sans); font-weight: 600; border: none; border-radius: var(--radius-xl); cursor: pointer; padding: 10px 20px; font-size: 0.85rem; transition: all 0.2s ease; }
+        .btn-primary { background: var(--gold); color: #000; }
+        .btn-primary:hover { background: var(--gold-hover); }
+        .btn-secondary { background: transparent; color: var(--text-primary); border: 1px solid var(--border-visible); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.05); }
+        .btn .icon { width: 16px; height: 16px; }
+
+        .page-tabs { display: flex; gap: 0; background: var(--bg-card); border-radius: var(--radius-md); padding: 4px; border: 1px solid var(--border-subtle); }
+        .page-tab { flex: 1; padding: 10px 14px; border: none; border-radius: var(--radius-sm); background: transparent; color: var(--text-tertiary); font-family: var(--font-sans); font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: all 0.15s ease; }
+        .page-tab.active { background: var(--bg-main); color: var(--text-primary); }
+        .page-tab:hover:not(.active) { color: var(--text-secondary); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        .video-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .video-card { position: relative; aspect-ratio: 9/13; border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-subtle); cursor: pointer; }
+        .video-thumb { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); background: linear-gradient(160deg, var(--bg-card) 0%, var(--bg-main) 100%); }
+        .video-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .video-thumb .icon { width: 24px; height: 24px; }
+        .video-card-caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 16px 8px 8px; background: linear-gradient(to top, rgba(15,15,15,0.9), transparent); font-size: 0.7rem; color: var(--text-primary); line-height: 1.3; }
+        .video-badge { position: absolute; top: 6px; left: 6px; background: var(--gold-soft); color: var(--gold); font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 6px; border-radius: 5px; border: 1px solid rgba(240,185,63,0.3); z-index: 2; }
+        .video-badge.anime { background: rgba(74,144,217,0.15); color: var(--blue); border-color: rgba(74,144,217,0.3); }
+        .video-badge.repost { background: rgba(47,168,79,0.12); color: var(--green); border-color: rgba(47,168,79,0.3); display: flex; align-items: center; gap: 3px; }
+
+        .txn-list { display: flex; flex-direction: column; }
+        .txn-row { display: flex; align-items: center; gap: 13px; padding: 14px 0; border-top: 1px dashed var(--border-subtle); }
+        .txn-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(47,168,79,0.12); color: var(--green); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .txn-icon .icon { width: 17px; height: 17px; }
+        .txn-info { flex: 1; min-width: 0; }
+        .txn-title { font-size: 0.85rem; font-weight: 500; }
+        .txn-meta { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-tertiary); margin-top: 2px; }
+        .txn-amount { font-family: var(--font-mono); font-size: 0.9rem; font-weight: 600; color: var(--green); flex-shrink: 0; }
+
+        .empty-state { display: none; text-align: center; padding: 40px 16px 20px; color: var(--text-tertiary); }
+        .empty-state.visible { display: block; }
+        .empty-state .icon { width: 30px; height: 30px; margin: 0 auto 14px; opacity: 0.3; }
+        .empty-state h3 { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .empty-state p { font-size: 0.82rem; }
+
+        .skeleton { background: linear-gradient(90deg, var(--bg-card) 25%, var(--border-visible) 50%, var(--bg-card) 75%); background-size: 200% 100%; animation: shimmer 1.4s ease infinite; border-radius: var(--radius-sm); }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .skeleton-avatar { width: 84px; height: 84px; border-radius: 50%; margin: 0 auto 16px; }
+        .skeleton-line { height: 14px; border-radius: 6px; margin: 0 auto; }
+
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; align-items: flex-end; justify-content: center; z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+        .modal-backdrop.visible { opacity: 1; pointer-events: auto; }
+        .modal-card { width: 100%; max-width: 440px; background: var(--bg-card); border: 1px solid var(--border-visible); border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 24px 22px 28px; transform: translateY(24px); transition: transform 0.25s ease; }
+        .modal-backdrop.visible .modal-card { transform: translateY(0); }
+        @media (min-width: 560px) { .modal-backdrop { align-items: center; } .modal-card { border-radius: var(--radius-lg); } }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .modal-title { font-size: 1.1rem; }
+        .modal-close { background: none; border: none; color: var(--text-tertiary); cursor: pointer; padding: 6px; border-radius: 6px; }
+        .modal-close:hover { color: var(--text-primary); }
+        .modal-close .icon { width: 18px; height: 18px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px; }
+        .form-input, .form-textarea { width: 100%; padding: 13px 14px; background: var(--bg-main); border: 1px solid var(--border-visible); border-radius: var(--radius-md); color: var(--text-primary); font-family: var(--font-sans); font-size: 0.95rem; }
+        .form-textarea { resize: none; min-height: 84px; }
+        .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--gold); }
+        .form-error { display: flex; align-items: center; gap: 5px; font-size: 0.78rem; color: var(--red); margin-top: 7px; }
+        .form-error:empty { display: none; }
+        .char-count { text-align: right; font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-tertiary); margin-top: 6px; }
+        .char-count.limit { color: var(--red); }
+        .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
+        .modal-actions .btn { flex: 1; }
+
+        .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--text-primary); color: var(--bg-main); font-size: 0.85rem; font-weight: 500; padding: 12px 20px; border-radius: var(--radius-xl); display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); opacity: 0; pointer-events: none; transition: all 0.25s ease; z-index: 400; }
+        .toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        @media (max-width: 480px) { body { padding: 16px; } .video-grid { gap: 6px; } .profile-stats { gap: 18px; } }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <div class="profile-header" id="profileSkeleton">
+            <div class="skeleton skeleton-avatar"></div>
+            <div class="skeleton skeleton-line" style="width:140px;margin-bottom:8px;"></div>
+            <div class="skeleton skeleton-line" style="width:200px;height:12px;"></div>
+        </div>
+
+        <div class="profile-header" id="profileHeader" hidden>
+            <div class="avatar-wrap">
+                <div class="avatar" id="profileInitials"></div>
+                <button class="avatar-edit" id="avatarEditBtn" aria-label="Edit profile">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                </button>
+            </div>
+            <h2 class="profile-name" id="profileName"></h2>
+            <p class="profile-bio" id="profileBio"></p>
+            <span class="premium-profile-badge" id="premiumBadge" style="display:none;">PREMIUM</span>
+
+            <div class="profile-stats">
+                <div class="profile-stat"><p class="profile-stat-value" id="followerCount">0</p><p class="profile-stat-label">Followers</p></div>
+                <div class="profile-stat"><p class="profile-stat-value" id="followingCount">0</p><p class="profile-stat-label">Following</p></div>
+                <div class="profile-stat"><p class="profile-stat-value" id="postCount">0</p><p class="profile-stat-label">Posts</p></div>
+                <div class="profile-stat"><p class="profile-stat-value" id="repostCount">0</p><p class="profile-stat-label">Reposts</p></div>
+            </div>
+
+            <button class="btn btn-secondary" id="editProfileBtn">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                Edit Profile
+            </button>
+        </div>
+
+        <div class="page-tabs" id="profileTabs" hidden>
+            <button class="page-tab active" data-tab="posts">Posts</button>
+            <button class="page-tab" data-tab="reposts">Reposts</button>
+            <button class="page-tab" data-tab="earnings">Earnings</button>
+        </div>
+
+        <div class="tab-panel active" id="panelPosts">
+            <div class="video-grid" id="postsGrid"></div>
+            <div class="empty-state" id="postsEmpty"><svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg><h3>No posts yet</h3><p>Create your first post or upload a video</p></div>
+        </div>
+        <div class="tab-panel" id="panelReposts">
+            <div class="video-grid" id="repostsGrid"></div>
+            <div class="empty-state" id="repostsEmpty"><svg class="icon" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><h3>No reposts yet</h3><p>Repost content you love to share it here</p></div>
+        </div>
+        <div class="tab-panel" id="panelEarnings">
+            <div class="card" style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px;">
+                <div class="txn-list" id="earningsList"></div>
+                <div class="empty-state" id="earningsEmpty"><svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg><h3>No earnings yet</h3><p>Watch sponsored content to start earning</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="editModal">
+        <div class="modal-card">
+            <div class="modal-header"><h3 class="modal-title">Edit Profile</h3><button class="modal-close" id="modalCloseBtn"><svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            <form id="editProfileForm">
+                <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="editName" maxlength="40" required><p class="form-error" id="editNameError"></p></div>
+                <div class="form-group"><label class="form-label">Bio</label><textarea class="form-textarea" id="editBio" maxlength="160" placeholder="Tell people about yourself"></textarea><p class="char-count" id="bioCharCount">0 / 160</p></div>
+                <div class="modal-actions"><button type="button" class="btn btn-secondary" id="modalCancelBtn">Cancel</button><button type="submit" class="btn btn-primary"><span class="btn-label">Save</span><span class="spinner" style="width:15px;height:15px;border:2px solid rgba(0,0,0,0.25);border-top-color:#000;border-radius:50%;animation:spin 0.7s linear infinite;display:none;"></span></button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"><svg class="icon" id="toastIcon" viewBox="0 0 24 24" style="width:16px;height:16px;"><polyline points="20 6 9 17 4 12"/></svg><span id="toastText"></span></div>
+
+    <script>
+        const $ = (sel) => document.querySelector(sel);
+        const fmt = new Intl.NumberFormat('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const state = { name: '', bio: '', initials: '', followers: 0, following: 0, posts: [], reposts: [], earnings: [], isPremium: false };
+        function getToken() { return localStorage.getItem('kashi_token'); }
+        function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+
+        async function load() {
+            const token = getToken();
+            try {
+                const [profileRes, postsRes] = await Promise.all([
+                    fetch(${API_BASE}/api/profile', { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch(${API_BASE}/api/profile/posts', { headers: { 'Authorization': `Bearer ${token}` } }),
+                ]);
+                if (profileRes.ok) Object.assign(state, await profileRes.json());
+                if (postsRes.ok) {
+                    const data = await postsRes.json();
+                    state.posts = data.posts || [];
+                    state.reposts = data.reposts || [];
+                    state.earnings = data.earnings || [];
+                }
+            } catch (_) {}
+            if (!state.initials && state.name) state.initials = state.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
+            render();
+        }
+
+        function render() {
+            $('#profileSkeleton').hidden = true;
+            $('#profileHeader').hidden = false;
+            $('#profileTabs').hidden = false;
+            $('#profileInitials').textContent = state.initials || '?';
+            $('#profileName').textContent = state.name || 'Unnamed';
+            $('#profileBio').textContent = state.bio || '';
+            if (state.isPremium) $('#premiumBadge').style.display = 'inline-block';
+            $('#followerCount').textContent = state.followers || 0;
+            $('#followingCount').textContent = state.following || 0;
+            $('#postCount').textContent = (state.posts || []).length;
+            $('#repostCount').textContent = (state.reposts || []).length;
+
+            renderGrid('postsGrid', 'postsEmpty', state.posts || []);
+            renderGrid('repostsGrid', 'repostsEmpty', state.reposts || [], true);
+
+            if ((state.earnings || []).length === 0) {
+                $('#earningsEmpty').classList.add('visible');
+                $('#earningsList').innerHTML = '';
+            } else {
+                $('#earningsEmpty').classList.remove('visible');
+                $('#earningsList').innerHTML = state.earnings.map(e => `
+                    <div class="txn-row">
+                        <div class="txn-icon"><svg class="icon" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+                        <div class="txn-info"><p class="txn-title">${esc(e.source)}</p><p class="txn-meta">${esc(e.date)}</p></div>
+                        <p class="txn-amount">+₦${fmt.format(e.amount)}</p>
+                    </div>`).join('');
+            }
+        }
+
+        function renderGrid(gridId, emptyId, items, isRepost = false) {
+            const grid = $('#' + gridId), empty = $('#' + emptyId);
+            if (!items || items.length === 0) { grid.innerHTML = ''; empty.classList.add('visible'); return; }
+            empty.classList.remove('visible');
+            grid.innerHTML = items.map(p => `
+                <div class="video-card">
+                    ${p.type === 'ad' ? '<span class="video-badge">Ad</span>' : ''}
+                    ${p.type === 'anime' ? '<span class="video-badge anime">Anime</span>' : ''}
+                    ${isRepost ? '<span class="video-badge repost"><svg class="icon" viewBox="0 0 24 24" style="width:10px;height:10px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/></svg>Repost</span>' : ''}
+                    <div class="video-thumb">
+                        ${p.thumbnail ? `<img src="${esc(p.thumbnail)}" alt="" loading="lazy">` : '<svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>'}
+                    </div>
+                    <div class="video-card-caption">${esc(p.caption || p.title || 'Untitled')}</div>
+                </div>`).join('');
+        }
+
+        document.querySelectorAll('#profileTabs .page-tab').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#profileTabs .page-tab').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                if (btn.dataset.tab === 'posts') $('#panelPosts').classList.add('active');
+                else if (btn.dataset.tab === 'reposts') $('#panelReposts').classList.add('active');
+                else $('#panelEarnings').classList.add('active');
+            });
+        });
+
+        const modal = $('#editModal'), nameInput = $('#editName'), bioInput = $('#editBio'), bioCount = $('#bioCharCount');
+        let lastFocused = null;
+        function openModal() { lastFocused = document.activeElement; nameInput.value = state.name || ''; bioInput.value = state.bio || ''; updateBioCount(); $('#editNameError').textContent = ''; modal.classList.add('visible'); document.body.style.overflow = 'hidden'; nameInput.focus(); }
+        function closeModal() { modal.classList.remove('visible'); document.body.style.overflow = ''; if (lastFocused) lastFocused.focus(); }
+        function updateBioCount() { const len = bioInput.value.length; bioCount.textContent = `${len} / 160`; bioCount.classList.toggle('limit', len >= 160); }
+        $('#editProfileBtn').addEventListener('click', openModal);
+        $('#avatarEditBtn').addEventListener('click', openModal);
+        $('#modalCloseBtn').addEventListener('click', closeModal);
+        $('#modalCancelBtn').addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('visible')) closeModal(); });
+        bioInput.addEventListener('input', updateBioCount);
+
+        $('#editProfileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = nameInput.value.trim(), bio = bioInput.value.trim();
+            if (!name) { $('#editNameError').innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:13px;height:13px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Please enter a name'; return; }
+            const btn = e.target.querySelector('.btn-primary'), spinner = btn.querySelector('.spinner'), label = btn.querySelector('.btn-label');
+            label.style.display = 'none'; spinner.style.display = 'block'; btn.disabled = true;
+            try {
+                const r = await fetch(${API_BASE}/api/profile', { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` }, body: JSON.stringify({ name, bio }) });
+                if (!r.ok) throw new Error('');
+                state.name = name; state.bio = bio; state.initials = name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
+                render(); closeModal(); showToast('Profile updated');
+            } catch (_) { showToast('Failed to save', 'error'); }
+            finally { label.style.display = ''; spinner.style.display = 'none'; btn.disabled = false; }
+        });
+
+        let toastTimer;
+        function showToast(msg, type = 'success') {
+            const t = $('#toast'), icon = $('#toastIcon');
+            $('#toastText').textContent = msg;
+            t.classList.add('visible');
+            icon.innerHTML = type === 'error' ? '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' : '<polyline points="20 6 9 17 4 12"/>';
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.classList.remove('visible'), 2600);
+        }
+
+        load();
+    </script>
+</body>
+</html>

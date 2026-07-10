@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>const API_BASE='https://kashi-atxm.onrender.com';</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0f0f0f">
+    <title>Wallet — Kashi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-main: #0f0f0f; --bg-card: #1a1a1a; --border-subtle: rgba(255,255,255,0.06); --border-visible: rgba(255,255,255,0.10);
+            --text-primary: #e8e8e8; --text-secondary: #a0a0a0; --text-tertiary: #6b6b6b;
+            --gold: #f0b93f; --gold-hover: #f6c968; --gold-soft: rgba(240,185,63,0.12); --green: #2fa84f; --red: #e04a3a;
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 999px;
+            --font-display: 'Space Grotesk', sans-serif; --font-sans: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+            --touch-target: 48px;
+        }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { font-family: var(--font-sans); background: var(--bg-main); color: var(--text-primary); height: 100%; overflow-y: auto; padding: 24px; }
+        body::-webkit-scrollbar { width: 4px; }
+        body::-webkit-scrollbar-track { background: transparent; }
+        body::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 4px; }
+        svg { display: block; }
+        .icon { stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+        h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; }
+        .page-wrapper { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+        .balance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .balance-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 20px; }
+        .balance-card.highlight { background: linear-gradient(135deg, #1a1a0f 0%, #1a1a1a 100%); border-color: rgba(240,185,63,0.15); }
+        .balance-label { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 6px; }
+        .balance-amount { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 600; }
+        .balance-card.highlight .balance-amount { color: var(--gold); }
+        .balance-sub { font-size: 0.72rem; color: var(--text-tertiary); margin-top: 4px; }
+
+        .payout-progress-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px; }
+        .payout-progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .payout-progress-label { font-size: 0.8rem; color: var(--text-secondary); }
+        .payout-progress-pct { font-family: var(--font-mono); font-size: 0.8rem; color: var(--gold); }
+        .payout-progress-track { width: 100%; height: 6px; background: var(--border-subtle); border-radius: 3px; overflow: hidden; }
+        .payout-progress-fill { height: 100%; background: var(--gold); border-radius: 3px; transition: width 0.5s ease; }
+        .payout-progress-footer { font-size: 0.7rem; color: var(--text-tertiary); margin-top: 8px; }
+
+        .page-tabs { display: flex; gap: 0; background: var(--bg-card); border-radius: var(--radius-md); padding: 4px; border: 1px solid var(--border-subtle); }
+        .page-tab { flex: 1; padding: 10px 14px; border: none; border-radius: var(--radius-sm); background: transparent; color: var(--text-tertiary); font-family: var(--font-sans); font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: all 0.15s ease; }
+        .page-tab.active { background: var(--bg-main); color: var(--text-primary); }
+        .page-tab:hover:not(.active) { color: var(--text-secondary); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        .card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 20px; }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .card-title { font-size: 0.9rem; font-weight: 600; }
+
+        .bank-card { display: flex; align-items: center; gap: 14px; padding: 16px; background: var(--bg-main); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); margin-bottom: 16px; }
+        .bank-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--gold-soft); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--gold); }
+        .bank-icon .icon { width: 22px; height: 22px; }
+        .bank-info { min-width: 0; }
+        .bank-name { font-weight: 600; font-size: 0.9rem; }
+        .bank-account { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-secondary); }
+        .bank-status { font-size: 0.7rem; color: var(--green); }
+
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px; }
+        .form-input, .form-select { width: 100%; padding: 13px 14px; background: var(--bg-main); border: 1px solid var(--border-visible); border-radius: var(--radius-md); color: var(--text-primary); font-family: var(--font-sans); font-size: 0.95rem; min-height: var(--touch-target); }
+        .form-input:focus, .form-select:focus { outline: none; border-color: var(--gold); }
+        .form-input::placeholder { color: var(--text-tertiary); opacity: 0.7; }
+        .form-select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 44px; cursor: pointer; }
+        .form-select option { background: var(--bg-main); color: var(--text-primary); }
+        .form-error { font-size: 0.78rem; color: var(--red); margin-top: 6px; display: none; }
+        .form-error.visible { display: block; }
+        .form-hint { font-size: 0.72rem; color: var(--text-tertiary); margin-top: 6px; }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-sans); font-weight: 600; border: none; border-radius: var(--radius-xl); cursor: pointer; text-decoration: none; transition: all 0.2s ease; white-space: nowrap; min-height: var(--touch-target); }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: var(--gold); color: #000; padding: 14px 24px; font-size: 0.92rem; box-shadow: 0 4px 16px rgba(240,185,63,0.25); }
+        .btn-primary:hover { background: var(--gold-hover); }
+        .btn-secondary { background: transparent; color: var(--text-primary); border: 1px solid var(--border-visible); padding: 9px 18px; font-size: 0.85rem; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.05); }
+        .btn-full { width: 100%; }
+        .btn-sm { padding: 7px 14px; font-size: 0.78rem; min-height: 36px; }
+        .btn .icon { width: 16px; height: 16px; }
+        .spinner { width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.25); border-top-color: #000; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+        .btn.loading .spinner { display: block; }
+        .btn.loading .btn-label { display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: var(--radius-xl); font-family: var(--font-mono); font-size: 0.65rem; font-weight: 600; }
+        .badge-gold { background: var(--gold-soft); color: var(--gold); }
+
+        .txn-list { display: flex; flex-direction: column; gap: 2px; }
+        .txn-row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); }
+        .txn-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .txn-icon.debit { background: var(--gold-soft); color: var(--gold); }
+        .txn-icon .icon { width: 18px; height: 18px; }
+        .txn-info { flex: 1; min-width: 0; }
+        .txn-title { font-size: 0.85rem; font-weight: 500; }
+        .txn-meta { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-tertiary); }
+        .txn-amount { font-family: var(--font-mono); font-size: 0.9rem; font-weight: 600; text-align: right; }
+        .txn-amount.debit { color: var(--gold); }
+        .txn-status { font-size: 0.65rem; padding: 2px 8px; border-radius: var(--radius-xl); font-family: var(--font-mono); font-weight: 500; }
+        .txn-status.success { background: rgba(47,168,79,0.12); color: var(--green); }
+        .txn-status.pending { background: var(--gold-soft); color: var(--gold); }
+        .txn-status.failed { background: rgba(224,74,58,0.10); color: var(--red); }
+
+        .empty-state { display: none; text-align: center; padding: 40px 20px; color: var(--text-tertiary); }
+        .empty-state.visible { display: block; }
+        .empty-state .icon { width: 40px; height: 40px; margin: 0 auto 12px; opacity: 0.3; }
+        .empty-state h3 { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .empty-state p { font-size: 0.8rem; }
+
+        @media (max-width: 480px) { body { padding: 16px; } .balance-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <div class="balance-grid">
+            <div class="balance-card highlight">
+                <p class="balance-label">Available Balance</p>
+                <p class="balance-amount" id="availableBalance">₦0.00</p>
+                <p class="balance-sub">Ready to withdraw</p>
+            </div>
+            <div class="balance-card">
+                <p class="balance-label">Pending Settlement</p>
+                <p class="balance-amount" id="pendingBalance">₦0.00</p>
+                <p class="balance-sub" id="pendingEstimate"></p>
+            </div>
+        </div>
+
+        <div class="payout-progress-card">
+            <div class="payout-progress-header">
+                <span class="payout-progress-label">Progress to ₦7,000 payout</span>
+                <span class="payout-progress-pct" id="payoutPct">0%</span>
+            </div>
+            <div class="payout-progress-track"><div class="payout-progress-fill" id="payoutBar" style="width:0%;"></div></div>
+            <p class="payout-progress-footer">Next payout: <span id="nextPayoutDate">end of month</span> · Balances below ₦7,000 carry over</p>
+        </div>
+
+        <div class="page-tabs" id="walletTabs">
+            <button class="page-tab active" data-tab="withdraw">Withdraw</button>
+            <button class="page-tab" data-tab="history">Payout History</button>
+        </div>
+
+        <div class="tab-panel active" id="panelWithdraw">
+            <div class="card">
+                <div class="card-header"><span class="card-title">Bank Details</span></div>
+
+                <div class="bank-card" id="savedBank" style="display:none;">
+                    <div class="bank-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+                    <div class="bank-info">
+                        <p class="bank-name" id="savedBankName"></p>
+                        <p class="bank-account" id="savedAccountNum"></p>
+                        <p class="bank-status">✓ Verified</p>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="changeBankBtn">Change</button>
+                </div>
+
+                <form id="bankForm" style="display:flex;flex-direction:column;gap:16px;">
+                    <div class="form-group">
+                        <label class="form-label" for="bankName">Bank / Fintech</label>
+                        <select class="form-select" id="bankName" required>
+                            <option value="">Select your bank</option>
+                            <optgroup label="Fintech Platforms">
+                                <option value="OPay">OPay</option>
+                                <option value="Moniepoint">Moniepoint</option>
+                                <option value="PalmPay">PalmPay</option>
+                                <option value="Kuda Bank">Kuda Bank</option>
+                            </optgroup>
+                            <optgroup label="Commercial Banks">
+                                <option value="Access Bank">Access Bank</option>
+                                <option value="Zenith Bank">Zenith Bank</option>
+                                <option value="First Bank">First Bank of Nigeria</option>
+                                <option value="UBA">United Bank for Africa (UBA)</option>
+                                <option value="GTBank">GTBank (Guaranty Trust Bank)</option>
+                                <option value="Fidelity Bank">Fidelity Bank</option>
+                                <option value="Stanbic IBTC">Stanbic IBTC Bank</option>
+                                <option value="Ecobank">Ecobank Nigeria</option>
+                            </optgroup>
+                        </select>
+                        <span class="form-error" id="bankNameError">Please select a bank</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="accountNumber">Account Number</label>
+                        <input type="text" class="form-input" id="accountNumber" placeholder="0123456789" maxlength="10" required>
+                        <span class="form-error" id="accountNumberError">Please enter a valid 10-digit account number</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="accountName">Account Name</label>
+                        <input type="text" class="form-input" id="accountName" placeholder="Enter account holder name" required>
+                        <span class="form-hint">Must match the name on your bank account for successful transfer</span>
+                        <span class="form-error" id="accountNameError">Please enter the account holder name</span>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><span class="btn-label">Save Bank Details</span><span class="spinner"></span></button>
+                </form>
+            </div>
+
+            <div class="card" id="withdrawSection" style="display:none;margin-top:20px;">
+                <div class="card-header">
+                    <span class="card-title">Withdraw Funds</span>
+                    <span class="badge badge-gold">Min ₦7,000</span>
+                </div>
+                <form id="withdrawForm" style="display:flex;flex-direction:column;gap:16px;">
+                    <div class="form-group">
+                        <label class="form-label" for="withdrawAmount">Amount (₦)</label>
+                        <input type="number" class="form-input" id="withdrawAmount" placeholder="Min. ₦7,000" min="7000" required>
+                        <span class="form-error" id="withdrawAmountError">Minimum withdrawal is ₦7,000</span>
+                        <span class="form-hint" id="withdrawFee">Withdrawal fee: ₦50 · Processing time: up to 48 hours</span>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full" id="withdrawBtn">
+                        <span class="btn-label">Withdraw to Bank</span><span class="spinner"></span>
+                        <svg class="icon" viewBox="0 0 24 24"><polyline points="5 12 12 5 19 12"/><polyline points="5 19 12 12 19 19"/></svg>
+                    </button>
+                </form>
+                <p class="form-hint" style="text-align:center;margin-top:12px;">Withdrawals are processed manually within 48 hours.</p>
+            </div>
+        </div>
+
+        <div class="tab-panel" id="panelHistory">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Payout History</span>
+                    <button class="btn btn-secondary btn-sm" id="exportBtn">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Export CSV
+                    </button>
+                </div>
+                <div class="txn-list" id="payoutList"></div>
+                <div class="empty-state" id="payoutEmpty"><svg class="icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><h3>No payouts yet</h3><p>Your withdrawal history will appear here</p></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const $ = (sel) => document.querySelector(sel);
+        const fmt = new Intl.NumberFormat('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const MIN_WITHDRAWAL = 7000;
+        const WITHDRAWAL_FEE = 50;
+        const state = { balance: { available: 0, pending: 0, pendingEstimate: '' }, bankDetails: null, payouts: [], nextPayoutDate: '', isPremium: false };
+        function getToken() { return localStorage.getItem('kashi_token'); }
+        function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+
+        async function load() {
+            const token = getToken();
+            try {
+                const [walletRes, payoutsRes] = await Promise.all([
+                    fetch(${API_BASE}/api/wallet', { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch(${API_BASE}/api/payouts', { headers: { 'Authorization': `Bearer ${token}` } }),
+                ]);
+                if (walletRes.ok) { const d = await walletRes.json(); state.balance = d.balance; state.bankDetails = d.bankDetails || null; state.nextPayoutDate = d.nextPayoutDate || ''; state.isPremium = d.isPremium || false; }
+                if (payoutsRes.ok) state.payouts = await payoutsRes.json();
+            } catch (_) {}
+            render();
+        }
+
+        function render() {
+            $('#availableBalance').textContent = '₦' + fmt.format(state.balance.available);
+            $('#pendingBalance').textContent = '₦' + fmt.format(state.balance.pending);
+            $('#pendingEstimate').textContent = state.balance.pendingEstimate || '';
+            const pct = Math.min((state.balance.available / MIN_WITHDRAWAL) * 100, 100);
+            $('#payoutPct').textContent = Math.round(pct) + '%';
+            $('#payoutBar').style.width = pct + '%';
+            $('#nextPayoutDate').textContent = state.nextPayoutDate || 'end of month';
+
+            if (state.bankDetails) {
+                $('#savedBank').style.display = 'flex';
+                $('#savedBankName').textContent = state.bankDetails.bankName;
+                $('#savedAccountNum').textContent = (state.bankDetails.accountNumber || '') + ' · ' + (state.bankDetails.accountName || '');
+                $('#withdrawSection').style.display = 'block';
+                $('#bankForm').style.display = 'none';
+                const min = state.isPremium ? 2000 : MIN_WITHDRAWAL;
+                $('#withdrawAmount').min = min;
+                $('#withdrawAmount').placeholder = `Min. ₦${min.toLocaleString()}`;
+                $('#withdrawAmountError').textContent = `Minimum withdrawal is ₦${min.toLocaleString()}`;
+                $('#withdrawFee').textContent = state.isPremium ? 'Premium: no withdrawal fee · Processing: up to 48 hours' : 'Withdrawal fee: ₦50 · Processing: up to 48 hours';
+            }
+
+            if (state.payouts.length === 0) {
+                $('#payoutEmpty').classList.add('visible');
+                $('#payoutList').innerHTML = '';
+            } else {
+                $('#payoutEmpty').classList.remove('visible');
+                $('#payoutList').innerHTML = state.payouts.map(p => `
+                    <div class="txn-row">
+                        <div class="txn-icon debit"><svg class="icon" viewBox="0 0 24 24"><polyline points="5 12 12 5 19 12"/><polyline points="5 19 12 12 19 19"/></svg></div>
+                        <div class="txn-info"><p class="txn-title">Withdrawal to ${esc(p.bankName||'Bank')}</p><p class="txn-meta">${p.date} · ${p.reference||''}</p></div>
+                        <div style="text-align:right;"><p class="txn-amount debit">-₦${fmt.format(p.amount)}</p><span class="txn-status ${p.status}">${p.status}</span></div>
+                    </div>`).join('');
+            }
+        }
+
+        $('#changeBankBtn').addEventListener('click', () => { $('#savedBank').style.display = 'none'; $('#bankForm').style.display = 'flex'; });
+
+        $('#bankForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const bank = $('#bankName').value, acct = $('#accountNumber').value.trim(), acctName = $('#accountName').value.trim();
+            if (!bank) { $('#bankNameError').classList.add('visible'); return; }
+            if (!/^\d{10}$/.test(acct)) { $('#accountNumberError').classList.add('visible'); return; }
+            if (!acctName || acctName.length < 3) { $('#accountNameError').classList.add('visible'); return; }
+            const btn = e.target.querySelector('.btn-primary'); btn.classList.add('loading'); btn.disabled = true;
+            try {
+                const r = await fetch(${API_BASE}/api/wallet/bank', { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${getToken()}`}, body:JSON.stringify({bankName:bank,accountNumber:acct,accountName:acctName}) });
+                if (!r.ok) { const err = await r.json(); throw new Error(err.error || 'Failed'); }
+                state.bankDetails = { bankName: bank, accountNumber: acct, accountName: acctName };
+                render();
+            } catch (err) { alert(err.message || 'Failed to save bank details.'); }
+            finally { btn.classList.remove('loading'); btn.disabled = false; }
+        });
+
+        $('#withdrawForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const amount = parseInt($('#withdrawAmount').value);
+            const min = state.isPremium ? 2000 : MIN_WITHDRAWAL;
+            if (!amount || amount < min) { $('#withdrawAmountError').classList.add('visible'); return; }
+            if (amount > state.balance.available) { alert('Insufficient balance.'); return; }
+            const btn = $('#withdrawBtn'); btn.classList.add('loading'); btn.disabled = true;
+            try {
+                const r = await fetch(${API_BASE}/api/wallet/withdraw', { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${getToken()}`}, body:JSON.stringify({amount}) });
+                if (!r.ok) throw new Error('');
+                const p = await r.json();
+                state.payouts.unshift(p);
+                state.balance.available -= amount;
+                render();
+                $('#withdrawAmount').value = '';
+                alert('Withdrawal submitted! You will receive your funds within 48 hours.');
+            } catch (_) { alert('Withdrawal failed.'); }
+            finally { btn.classList.remove('loading'); btn.disabled = false; }
+        });
+
+        $('#exportBtn').addEventListener('click', () => {
+            if (state.payouts.length === 0) return;
+            const csv = ['Date,Amount,Status,Bank,Reference', ...state.payouts.map(p => `${p.date},${p.amount},${p.status},${p.bankName||''},${p.reference||''}`)].join('\n');
+            const blob = new Blob([csv], { type:'text/csv' }), url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'kashi-payouts.csv'; a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        document.querySelectorAll('#walletTabs .page-tab').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#walletTabs .page-tab').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                if (btn.dataset.tab === 'withdraw') $('#panelWithdraw').classList.add('active');
+                else $('#panelHistory').classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.form-input, .form-select').forEach(input => {
+            input.addEventListener('input', () => { const err = document.getElementById(input.id + 'Error'); if (err) err.classList.remove('visible'); });
+        });
+
+        load();
+    </script>
+</body>
+</html>
